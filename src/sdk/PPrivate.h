@@ -4,7 +4,7 @@
 #include "PlatformCTypes.h"
 #include "Util/PList.h"
 
-typedef enum 
+typedef enum
 {
     PSERVER_STATUS_IDLE = 0,
     PSERVER_STATUS_LOGIN_START,
@@ -19,7 +19,7 @@ typedef struct PCtx_st
     pbool_t startAddDiscover;
     ptime_t startAddDiscoverTime;
 
-    PServerStatus_t serverStatus;
+    //PServerStatus_t serverStatus;
     ptime_t lastServerStatusTime;
 }PCtx_t;
 
@@ -30,6 +30,12 @@ typedef struct PSubCtx_st
     char pin[PLATFORM_PIN_LEN + 1];
     PLIST_ENTRY(struct PSubCtx_st);
 }PSubCtx_t;
+
+ptime_t PlatformTime(void);
+#define PTimeDiff(new, old) ((new) - (old))
+#define PTimeDiffCurrent(oldTime) PTimeDiff(PlatformTime(), (oldTime))
+#define PTimeHasPast(oldTime, pastTime) (PTimeDiffCurrent((oldTime)) > (pastTime))
+
 
 const char *PPrivateGetToken(void);
 const char *PPrivateGetSessionkey(void);

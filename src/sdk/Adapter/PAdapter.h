@@ -1,4 +1,5 @@
 #ifndef PADPTER_H
+#define PADPTER_H
 
 unsigned char PAdaperIsLinkup(void);
 
