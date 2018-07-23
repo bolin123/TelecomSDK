@@ -1,4 +1,5 @@
 #include "PUtil.h"
+#include "PPrivate.h"
 #include "Util/Aes.h"
 #include "Util/Base64.h"
 

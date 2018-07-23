@@ -1,4 +1,4 @@
-#include "SysTypes.h"
+#include "UserTypes.h"
 #include "../PlatformUser.h"
 
 #ifdef __WIN__
@@ -9,14 +9,32 @@
 #define SLEEP_MS() usleep(1000)
 #endif
 
+void PSocketInitialize(void);
+void PSocketPoll(void);
+void PSocketBackPoll(void);
+
+
 int main()
 {
+#ifdef __WIN__
+        WORD wVersionRequested = MAKEWORD(1, 1);
+        WSADATA wsaData;
+
+        int err = WSAStartup(wVersionRequested, &wsaData);
+        if(0 != err)
+        {
+        }
+#endif//socket≥ı ºªØ
+
+    PSocketInitialize();
 	PlatformUserInit();
 
 	while (1)
 	{
+	    PSocketPoll();
+        PSocketBackPoll();
         PlatformUserPoll();
-        PlatformUserTimePass(1);
+        //PlatformUserTimePass(1);
 		SLEEP_MS();
 	}
 

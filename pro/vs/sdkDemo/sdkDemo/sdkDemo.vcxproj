@@ -20,11 +20,13 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\..\src\demo\PC\main.c" />
+    <ClCompile Include="..\..\..\..\src\demo\PC\PSocket.c" />
     <ClCompile Include="..\..\..\..\src\demo\PlatformUser.c" />
     <ClCompile Include="..\..\..\..\src\sdk\ConnectionManager.c" />
     <ClCompile Include="..\..\..\..\src\sdk\Platform.c" />
     <ClCompile Include="..\..\..\..\src\sdk\PlatformMc.c" />
     <ClCompile Include="..\..\..\..\src\sdk\PPrivate.c" />
+    <ClCompile Include="..\..\..\..\src\sdk\PropertyManager.c" />
     <ClCompile Include="..\..\..\..\src\sdk\PUtil.c" />
     <ClCompile Include="..\..\..\..\src\sdk\Util\Aes.c" />
     <ClCompile Include="..\..\..\..\src\sdk\Util\Base64.c" />
@@ -32,16 +34,18 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\..\src\demo\PC\PlatformUserOption.h" />
-    <ClInclude Include="..\..\..\..\src\demo\PC\SysTypes.h" />
+    <ClInclude Include="..\..\..\..\src\demo\PC\UserTypes.h" />
     <ClInclude Include="..\..\..\..\src\demo\PlatformUser.h" />
     <ClInclude Include="..\..\..\..\src\sdk\Adapter\PAdapter.h" />
     <ClInclude Include="..\..\..\..\src\sdk\Adapter\PSocket.h" />
     <ClInclude Include="..\..\..\..\src\sdk\ConnectionManager.h" />
+    <ClInclude Include="..\..\..\..\src\sdk\McCMD.h" />
     <ClInclude Include="..\..\..\..\src\sdk\Platform.h" />
     <ClInclude Include="..\..\..\..\src\sdk\PlatformCTypes.h" />
     <ClInclude Include="..\..\..\..\src\sdk\PlatformMc.h" />
     <ClInclude Include="..\..\..\..\src\sdk\PlatformOption.h" />
     <ClInclude Include="..\..\..\..\src\sdk\PPrivate.h" />
+    <ClInclude Include="..\..\..\..\src\sdk\PropertyManager.h" />
     <ClInclude Include="..\..\..\..\src\sdk\PUtil.h" />
     <ClInclude Include="..\..\..\..\src\sdk\Util\Aes.h" />
     <ClInclude Include="..\..\..\..\src\sdk\Util\Base64.h" />
@@ -119,13 +123,14 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;__WIN__;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;__WIN__;_WINSOCK_DEPRECATED_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <AdditionalOptions>/D _CRT_SECURE_NO_WARNINGS %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>ws2_32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">

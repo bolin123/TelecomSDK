@@ -19,7 +19,7 @@
 #endif
 
 #ifndef J_LOG
-#define J_LOG(...) 
+#define J_LOG(...)
 #endif
 
 
@@ -33,7 +33,7 @@
 #endif
 
 #ifndef _xtag
-#define _xtag 
+#define _xtag
 #endif
 
 //#define DEBUG_MEM
@@ -585,10 +585,10 @@ _xtag void *dbg_malloc(size_t size)
     mem_item_t *item = malloc(sizeof(mem_item_t));
     item->mem = malloc(size);
     item->size = size;
-    item->next = MNULL;
+    item->next = PNULL;
 
     mem_item_t *first = g_mem_item_list;
-    if(first == MNULL)
+    if(first == PNULL)
     {
         g_mem_item_list = item;
     }
@@ -608,15 +608,15 @@ _xtag void dbg_free(void *p)
 #undef free
     free(p);
 
-    mem_item_t *last = MNULL;
+    mem_item_t *last = PNULL;
     mem_item_t *first = g_mem_item_list;
     while(first)
     {
         if(first->mem == p)
         {
-            if(last == MNULL)
+            if(last == PNULL)
             {
-                g_mem_item_list = MNULL;
+                g_mem_item_list = PNULL;
             }
             else
             {

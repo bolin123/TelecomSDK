@@ -45,11 +45,14 @@
     <ClCompile Include="..\..\..\..\src\sdk\ConnectionManager.c">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\..\..\src\demo\PC\PSocket.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\src\sdk\PropertyManager.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\..\..\src\demo\PC\SysTypes.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\..\..\src\demo\PlatformUser.h">
       <Filter>头文件</Filter>
     </ClInclude>
@@ -93,6 +96,15 @@
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\..\src\sdk\Util\PList.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\src\demo\PC\UserTypes.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\src\sdk\McCMD.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\src\sdk\PropertyManager.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>

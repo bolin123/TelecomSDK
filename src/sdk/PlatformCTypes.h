@@ -4,7 +4,7 @@
 #include "PlatformOption.h"
 
 #ifndef _ptag
-#define _ptag 
+#define _ptag
 #endif
 
 //¿‡–Õ
@@ -46,7 +46,7 @@ typedef puint32_t           ptime_t;
 
 #ifdef pprintf
 #ifndef plog
-#define plog(...) pprintf("[PF] %s[%d]", PFUNC, PLINE);pprintf(__VA_ARGS__);pprintf("\n");
+#define plog(...) pprintf("[PF] %s[%d]:", PFUNC, PLINE);pprintf(__VA_ARGS__);pprintf("\n");
 #endif
 #else
 #define pprintf

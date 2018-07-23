@@ -1,71 +1,26 @@
 #include "PPrivate.h"
-#include "PlatformCTypes.h"
 
-static char g_token[PLATFORM_TOKEN_LEN + 1];
-static char g_sessionKey[PLATFORM_SESSIONKEY_LEN + 1];
-static char g_did[PLATFORM_DEVID_LEN + 1];
-static char g_pin[PLATFORM_PIN_LEN + 1];
-static char *g_model = PNULL;
-
-_ptag const char *PPrivateGetToken(void)
+_ptag PrivateCtx_t *PPrivateCreate(void)
 {
-    return g_token;
-}
+    PrivateCtx_t *pri = (PrivateCtx_t *)malloc(sizeof(PrivateCtx_t));
 
-_ptag void PPrivateSetToken(const char *token)
-{
-    g_token[0] = '\0';
-    strcpy(g_token, token);
-}
-
-_ptag void PPrivateSetSessionkey(const char *key)
-{
-    g_sessionKey[0] = '\0';
-    strcpy(g_sessionKey, key);
-}
-
-_ptag const char *PPrivateGetSessionkey(void)
-{
-    return g_sessionKey;
-}
-
-_ptag void PPrivateSetPin(const char *pin)
-{
-    g_pin[0] = '\0';
-    strcpy(g_pin, pin);
-}
-
-const char *PPrivateGetPin(void)
-{
-    return g_pin;
-}
-
-_ptag void PPrivateSetDevid(const char *did)
-{
-    g_did[0] = '\0';
-    strcpy(g_did, did);
-}
-
-const char *PPrivateGetDevid(void)
-{
-    return g_did;
-}
-
-_ptag void PPrivateSetModel(const char *model)
-{
-    if(g_model)
+    if(pri)
     {
-        free(g_model);
-        g_model = PNULL;
+        memset(pri, 0, sizeof(PrivateCtx_t));
+        PListInit(&pri->properties);
+        PListInit(&pri->resources);
+        PListInit(&pri->subDevices);
+        return pri;
     }
-    g_model = malloc(strlen(model) + 1);
-    if(g_model)
-    {
-        strcpy(g_model, model);
-    }
+    return PNULL;
 }
 
-const char *PPrivateGetModel(void)
+_ptag void PPrivateInitialize(void)
 {
-    return g_model;
 }
+
+_ptag void PPrivatePoll(void)
+{
+}
+
+
