@@ -1,6 +1,8 @@
----- CMServerStatus_t Matches (5 in 2 files) ----
-ConnectionManager.c (sdk):static CMServerStatus_t g_serverStatus = CM_SERVER_STATUS_IDLE;
-ConnectionManager.c (sdk):_ptag CMServerStatus_t CMServerStatus(PrivateCtx_t *ctx)
-ConnectionManager.c (sdk):_ptag static void updateServerStatus(PrivateCtx_t *ctx, CMServerStatus_t status)
-ConnectionManager.h (sdk):}CMServerStatus_t;
-ConnectionManager.h (sdk):CMServerStatus_t CMServerStatus(PrivateCtx_t *ctx);
+---- PPrivateEventEmit Matches (7 in 4 files) ----
+ConnectionManager.c (sdk):            PPrivateEventEmit(ctx, PEVENT_SERVER_ON_OFFLINE, (void *)pfalse);
+ConnectionManager.c (sdk):            PPrivateEventEmit(ctx, PEVENT_SERVER_ON_OFFLINE, (void *)ptrue);
+PlatformMc.c (sdk):                PPrivateEventEmit();
+PlatformMc.c (sdk):                    PPrivateEventEmit(ctx, PEVENT_SUBDEV_AUTH_FAILED, (void *)subDev->did);
+PlatformMc.c (sdk):            PPrivateEventEmit(ctx, PEVENT_TIMING_INFO, (puint32_t)strtol(utcstr, NULL, 10));
+PPrivate.c (sdk):_ptag void PPrivateEventEmit(PlatformEvent_t event, void *args)
+PPrivate.h (sdk):void PPrivateEventEmit(PlatformEvent_t event, void *args);

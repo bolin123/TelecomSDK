@@ -4,6 +4,7 @@
 #include "PlatformCTypes.h"
 #include "Adapter/PSocket.h"
 #include "Util/PList.h"
+#include "Platform.h"
 
 typedef enum
 {
@@ -59,19 +60,35 @@ typedef struct PMProperty_st
     PLIST_ENTRY(struct PMProperty_st);
 }PMProperty_t;
 
+typedef enum
+{
+    SUBDEV_AUTH_NONE = 0,
+    SUBDEV_AUTH_START,
+    SUBDEV_AUTH_SUCCESS,
+    SUBDEV_AUTH_FAILED,
+}SubDevAuthStatus_t;
+
+typedef struct ModulesVersion_st
+{
+    char *name;
+    char version[PLATFORM_VERSION_LEN + 1];
+    PLIST_ENTRY(struct ModulesVersion_st);
+}ModulesVersion_t;
+
 /*从设备信息*/
 typedef struct PMSubDevice_st
 {
     pbool_t online;
-    pbool_t auth;  //鉴权
-    char *did;
-    char *pin;
-    char *model;
+    SubDevAuthStatus_t authStatus;  //鉴权
+    char did[PLATFORM_DEVID_LEN + 1];
+    char pin[PLATFORM_PIN_LEN + 1];
+    char model[PLATFORM_MODEL_LEN + 1];
+    char version[PLATFORM_VERSION_LEN + 1];
+    ModulesVersion_t modules;
     PMProperty_t property;
     ResourceInfo_t resource;
     PLIST_ENTRY(struct PMSubDevice_st);
 }PMSubDevice_t;
-
 
 typedef struct PrivateCtx_st
 {
@@ -91,10 +108,12 @@ typedef struct PrivateCtx_st
     puint16_t sendsn;
     puint16_t recvsn;
 
+    ModulesVersion_t modules;
     PMProperty_t properties;
     ResourceInfo_t resources;
     PMSubDevice_t subDevices; //从设备
 
+    PlatformEventHandle_t eventHandle;
     PSocket_t *serverSocket;
     PSocket_t clientSockets[PLATFORM_CLIENT_CONNECT_NUM];
 }PrivateCtx_t;
@@ -104,6 +123,9 @@ typedef struct PrivateCtx_st
 #define PTimeDiffCurrent(oldTime) PTimeDiff(PlatformTime(), (oldTime))
 #define PTimeHasPast(oldTime, pastTime) (PTimeDiffCurrent((oldTime)) > (pastTime))
 
+void PPrivateEventEmit(PrivateCtx_t *ctx, PlatformEvent_t event, void *args);
+int PPrivateSubDeviceDel(PrivateCtx_t *ctx, const char *did);
+int PPrivateSubDeviceRegister(PrivateCtx_t *ctx, const char *did, const char *pin, const char *model, const char *version);
 PrivateCtx_t *PPrivateCreate(void);
 void PPrivateInitialize(void);
 void PPrivatePoll(void);

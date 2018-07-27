@@ -73,6 +73,13 @@
 #define MC_RESOURCE_NAME    "resourceName"
 #define MC_RESOURCE_INFO    "resourceInfo"
 
+#define MC_SUBDEV_ID   "subDeivceId"
+#define MC_AUTH_RESULT "authResult"
+#define MC_SUBDEV_ONLINE "online"
+
 #define MC_PROTO_HEAD "CTS"
+
+#define MC_CMDNAME  "cmdName"
+#define MC_CMDPARAM "cmdParam"
 
 #endif

@@ -49,24 +49,23 @@ void PlatformUserInit(void)
     g_ctx = PlatformCtxCreate();
     if(g_ctx)
     {
-        PlatformSetDevid(g_ctx, devID);
-        PlatformSetPin(g_ctx, devPin);
-        PlatformSetModel(g_ctx, "1001");
-        PlatformSetDeviceVersion(g_ctx, "001.000.000.001");
+        PlatformSetDeviceInfo(g_ctx, devID, devPin, "1001", "001.000.000.001");
 
         pInfo.appid    = 1;
         pInfo.sid      = 0;
         pInfo.name     = "ACTION";
         pInfo.isText   = true;
         pInfo.readonly = false;
-        PlatformPropertyRegister(g_ctx, &pInfo);
+        PlatformPropertyRegister(g_ctx, NULL, &pInfo);
+        PlatformSetModuleVersion(g_ctx, NULL, "mod111", "001.000.101.123");
+        PlatformSetModuleVersion(g_ctx, NULL, "mod222", "001.000.102.321");
         //PlatformPropertyRegist(g_ctx, 2, 1, "POWER", false, false);
         //PlatformPropertyRegist(g_ctx, 3, 2, "POWER", false, false);
         //PlatformPropertyRegist(g_ctx, 4, 3, "POWER", false, false);
         PlatformStart(g_ctx);
 
 
-        PlatformPropertySetTextValue(g_ctx, 1, "VOICECAST");
+        PlatformPropertySetTextValue(g_ctx, NULL, 1, "VOICECAST");
         //PlatformPropertySetNumValue(g_ctx, 2, 1);
         //PlatformPropertySetNumValue(g_ctx, 3, 0);
         //PlatformPropertySetNumValue(g_ctx, 4, 1);
@@ -89,14 +88,34 @@ void PlatformUserInit(void)
         PlatformResourceInfoSetNumValue(g_ctx, devID, "KEY_LIST", 1, "KEY_TYPE", 3);
         PlatformResourceInfoSetNumValue(g_ctx, devID, "KEY_LIST", 1, "KEY_MODE", 4);
 
-        PlatformResourceRegister(g_ctx, devID, "CONSUM", 0, 1);
-        PlatformResourceInfoRegister(g_ctx, devID, "CONSUM", 0, "COUSUM_ID", true);
-        PlatformResourceInfoRegister(g_ctx, devID, "CONSUM", 0, "COUSUM_NAME", true);
-        PlatformResourceInfoRegister(g_ctx, devID, "CONSUM", 0, "REMAIN_LIFE", false);
+        PlatformResourceRegister(g_ctx, NULL, "CONSUM", 0, 1);
+        PlatformResourceInfoRegister(g_ctx, NULL, "CONSUM", 0, "COUSUM_ID", true);
+        PlatformResourceInfoRegister(g_ctx, NULL, "CONSUM", 0, "COUSUM_NAME", true);
+        PlatformResourceInfoRegister(g_ctx, NULL, "CONSUM", 0, "REMAIN_LIFE", false);
 
-        PlatformResourceInfoSetTextValue(g_ctx, devID, "CONSUM", 0, "COUSUM_ID", "3456789");
-        PlatformResourceInfoSetTextValue(g_ctx, devID, "CONSUM", 0, "COUSUM_NAME", "MAIN_FILTER");
-        PlatformResourceInfoSetNumValue(g_ctx, devID, "CONSUM", 0, "REMAIN_LIFE", 87);
+        PlatformResourceInfoSetTextValue(g_ctx, NULL, "CONSUM", 0, "COUSUM_ID", "3456789");
+        PlatformResourceInfoSetTextValue(g_ctx, NULL, "CONSUM", 0, "COUSUM_NAME", "MAIN_FILTER");
+        PlatformResourceInfoSetNumValue(g_ctx, NULL, "CONSUM", 0, "REMAIN_LIFE", 87);
+
+        char *subID = "MC93c9c2d8ac435db6019ba619d6a77d";
+        char *subPin = "PINd6af6c3134308941c2d70a830c950";
+        PlatformSubDeviceRegister(g_ctx, subID, subPin, "testModel", "100.000.000.001");
+
+        pInfo.appid    = 1;
+        pInfo.sid      = 0;
+        pInfo.name     = "POWER";
+        pInfo.isText   = false;
+        pInfo.readonly = false;
+        PlatformPropertyRegister(g_ctx, subID, &pInfo);
+        pInfo.appid    = 2;
+        pInfo.sid      = 0;
+        pInfo.name     = "STATUS";
+        pInfo.isText   = false;
+        pInfo.readonly = true;
+        PlatformPropertyRegister(g_ctx, subID, &pInfo);
+
+        PlatformPropertySetNumValue(g_ctx, subID, 1, 1);
+        PlatformPropertySetNumValue(g_ctx, subID, 2, 0);
     }
 }
 

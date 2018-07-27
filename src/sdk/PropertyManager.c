@@ -1,13 +1,71 @@
 #include "PropertyManager.h"
 #include "Util/PList.h"
 
-_ptag static ResourceInfo_t *findResourceInfoByDid(PrivateCtx_t *ctx, const char *did)
+_ptag static ModulesVersion_t *findModuleByDid(PrivateCtx_t *ctx, const char *did)
 {
     PMSubDevice_t *subDev = PNULL;
 
     if(did == PNULL)
     {
-        return PNULL;
+        return &ctx->modules;
+    }
+
+    if(strcmp(ctx->did, did) == 0)
+    {
+        return &ctx->modules;
+    }
+    else
+    {
+        PListForeach(&ctx->subDevices, subDev)
+        {
+            if(strcmp(subDev->did, did) == 0)
+            {
+                return &subDev->modules;
+            }
+        }
+    }
+    return PNULL;
+}
+
+_ptag int PMModuleSetVersion(PrivateCtx_t *ctx, const char *did, const char *name, const char *version)
+{
+    ModulesVersion_t *module;
+    ModulesVersion_t *modhead = findModuleByDid(ctx, did);
+
+    if(modhead == PNULL)
+    {
+        return -1;
+    }
+
+    module = (ModulesVersion_t *)malloc(sizeof(ModulesVersion_t));
+    if(module)
+    {
+        memset(module, 0, sizeof(ModulesVersion_t));
+        module->name = (char *)malloc(strlen(name) + 1);
+        if(module->name)
+        {
+            module->name[0] = '\0';
+            strcpy(module->name, name);
+            strcpy(module->version, version);
+            PListAdd(modhead, module);
+            return 0;
+        }
+        else
+        {
+            free(module);
+            return -2;
+        }
+    }
+    return -2;
+}
+
+_ptag ResourceInfo_t *PMFindResourceInfoByDid(PrivateCtx_t *ctx, const char *did)
+{
+    PMSubDevice_t *subDev = PNULL;
+
+    if(did == PNULL)
+    {
+        return &ctx->resources;
     }
 
     if(strcmp(ctx->did, did) == 0)
@@ -31,7 +89,7 @@ _ptag int PMResourceInfoSetNumValue(PrivateCtx_t *ctx, const char *did, const ch
 {
     ResourceNode_t *rscNode;
     ResourceInfo_t *infoNode;
-    ResourceInfo_t *head = findResourceInfoByDid(ctx, did);
+    ResourceInfo_t *head = PMFindResourceInfoByDid(ctx, did);
 
     if(head == PNULL || head->node)
     {
@@ -69,7 +127,7 @@ _ptag int PMResourceInfoSetTextValue(PrivateCtx_t *ctx, const char *did, const c
 {
     ResourceNode_t *rscNode;
     ResourceInfo_t *infoNode;
-    ResourceInfo_t *head = findResourceInfoByDid(ctx, did);
+    ResourceInfo_t *head = PMFindResourceInfoByDid(ctx, did);
 
     if(head == PNULL || head->node)
     {
@@ -117,7 +175,7 @@ _ptag int PMResourceInfoRegister(PrivateCtx_t *ctx, const char *did, const char 
 {
     ResourceNode_t *rscNode;
     ResourceInfo_t *infoNode;
-    ResourceInfo_t *head = findResourceInfoByDid(ctx, did);
+    ResourceInfo_t *head = PMFindResourceInfoByDid(ctx, did);
 
     if(head == PNULL || head->node)
     {
@@ -173,7 +231,7 @@ _ptag int PMResourceRegister(PrivateCtx_t *ctx, const char *did, const char *nam
 {
     puint16_t i;
     ResourceInfo_t *resource;
-    ResourceInfo_t *head = findResourceInfoByDid(ctx, did);
+    ResourceInfo_t *head = PMFindResourceInfoByDid(ctx, did);
 
     if(head == PNULL)
     {
@@ -221,6 +279,7 @@ _ptag int PMResourceRegister(PrivateCtx_t *ctx, const char *did, const char *nam
 /***************************************************************/
 /**********************属性管理*********************************/
 /***************************************************************/
+
 _ptag static PMProperty_t *findPropertyByID(PMProperty_t *head, puint16_t id)
 {
     PMProperty_t *property = PNULL;
@@ -320,36 +379,76 @@ _ptag static int propertyRegister(PMProperty_t *head, PPropertyInfo_t *pInfo)
 }
 
 /*****************************设备属性管理*****************************/
-_ptag int PMPropertySetTextValue(PMProperty_t *properties, puint16_t id, const char *value)
+_ptag PMProperty_t *PMFindPropertyHeadByDid(PrivateCtx_t *ctx, const char *did)
 {
+    PMSubDevice_t *subDev;
+    if(did)
+    {
+        if(strcmp(ctx->did, did) == 0)
+        {
+            return &ctx->properties;
+        }
+        else
+        {
+            PListForeach(&ctx->subDevices, subDev)
+            {
+                if(strcmp(subDev->did, did) == 0)
+                {
+                    subDev->online = ptrue;
+                    return &subDev->property;
+                }
+            }
+        }
+    }
+    else
+    {
+        return &ctx->properties;
+    }
+    return PNULL;
+}
+
+_ptag PMProperty_t *PMFindPropertyByName(PrivateCtx_t *ctx, const char *did, const char *name)
+{
+    PMProperty_t *property;
+    PMProperty_t *phead = PMFindPropertyHeadByDid(ctx, did);
+
+    if(phead && name)
+    {
+        PListForeach(phead, property)
+        {
+            if(strcmp(property->name, name) == 0)
+            {
+                return property;
+            }
+        }
+    }
+    return PNULL;
+}
+
+_ptag int PMPropertySetTextValue(PrivateCtx_t *ctx, const char *did, puint16_t id, const char *value)
+{
+    PMProperty_t *properties = PMFindPropertyHeadByDid(ctx, did);
     return propertySetTextValue(properties, id, value);
 }
 
-_ptag int PMPropertySetNumValue(PMProperty_t *properties, puint16_t id, puint32_t value)
+_ptag int PMPropertySetNumValue(PrivateCtx_t *ctx, const char *did, puint16_t id, puint32_t value)
 {
+    PMProperty_t *properties = PMFindPropertyHeadByDid(ctx, did);
     return propertySetNumValue(properties, id, value);
 }
 
-_ptag int PMPropertyRegister(PMProperty_t *properties, PPropertyInfo_t *pInfo)
+_ptag int PMPropertyRegister(PrivateCtx_t *ctx, const char *did, PPropertyInfo_t *pInfo)
 {
-    if(pInfo)
+    PMProperty_t *properties = PMFindPropertyHeadByDid(ctx, did);
+    if(properties && pInfo)
     {
         return propertyRegister(properties, pInfo);
     }
     return -1;
 }
 
-/*
-_ptag int PMDeviceRegister(const char *did)
-{
-    g_masterDevice.did = PPrivateGetDevid();
-    PListInit(&g_masterDevice.property);
-    PListInit(&g_masterDevice.resource);
-}
-*/
 
-
-/***************************从设备属性管理*********************************/
+/***************************从设备属性管理********************************
 _ptag int PMSubPropertySetNumValue(PMSubDevice_t *subDevices, const char *did, puint16_t id, puint32_t value)
 {
     PMSubDevice_t *subDev = PNULL;
@@ -392,51 +491,7 @@ _ptag int PMSubPropertyRegister(PMSubDevice_t *subDevices, const char *did, PPro
     }
     return -1;
 }
-
-_ptag int PMSubDeviceRegister(PMSubDevice_t *subDevices, const char *did, const char *pin)
-{
-    PMSubDevice_t *subDev = PNULL;
-
-    PListForeach(subDevices, subDev)
-    {
-        if(strcmp(subDev->did, did) == 0) //already register
-        {
-            return 0;
-        }
-    }
-
-    subDev = (PMSubDevice_t *)malloc(sizeof(PMSubDevice_t));
-    if(subDev)
-    {
-        subDev->online = pfalse;
-        subDev->auth = pfalse;
-        subDev->did = (char *)malloc(strlen(did) + 1);
-        if(subDev->did)
-        {
-            subDev->did[0] = '\0';
-            strcpy(subDev->did, did);
-        }
-        else
-        {
-            return -2;
-        }
-        subDev->pin = (char *)malloc(strlen(pin) + 1);
-        if(subDev->pin)
-        {
-            subDev->pin[0] = '\0';
-            strcpy(subDev->pin, pin);
-        }
-        else
-        {
-            return -2;
-        }
-        PListInit(&subDev->property);
-        PListInit(&subDev->resource);
-        PListAdd(subDevices, subDev);
-        return 0;
-    }
-    return -1;
-}
+*/
 
 _ptag void PMInitialize(void)
 {

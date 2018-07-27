@@ -1,25 +1,5 @@
 ﻿  PlatformUser.c
-  ConnectionManager.c
-f:\project\电信平台sdk\software\telecomsdk\src\sdk\connectionmanager.c(75): warning C4090: “函数”: 不同的“const”限定符
-f:\project\电信平台sdk\software\telecomsdk\src\sdk\connectionmanager.c(75): warning C4244: “函数”: 从“puint32_t”转换到“pint16_t”，可能丢失数据
-f:\project\电信平台sdk\software\telecomsdk\src\sdk\connectionmanager.c(107): warning C4028: 形参 3 与声明不同
-f:\project\电信平台sdk\software\telecomsdk\src\sdk\connectionmanager.c(194): warning C4028: 形参 3 与声明不同
-  PPrivate.c
-  PUtil.c
   Platform.c
-  PlatformMc.c
-f:\project\电信平台sdk\software\telecomsdk\src\sdk\platformmc.c(153): warning C4090: “=”: 不同的“const”限定符
-f:\project\电信平台sdk\software\telecomsdk\src\sdk\platformmc.c(172): warning C4090: “=”: 不同的“const”限定符
-f:\project\电信平台sdk\software\telecomsdk\src\sdk\platformmc.c(179): warning C4090: “=”: 不同的“const”限定符
-f:\project\电信平台sdk\software\telecomsdk\src\sdk\platformmc.c(238): warning C4090: “=”: 不同的“const”限定符
-f:\project\电信平台sdk\software\telecomsdk\src\sdk\platformmc.c(260): warning C4090: “=”: 不同的“const”限定符
-f:\project\电信平台sdk\software\telecomsdk\src\sdk\platformmc.c(296): warning C4244: “=”: 从“jint32_t”转换到“puint16_t”，可能丢失数据
-f:\project\电信平台sdk\software\telecomsdk\src\sdk\platformmc.c(309): warning C4267: “函数”: 从“size_t”转换到“puint16_t”，可能丢失数据
-f:\project\电信平台sdk\software\telecomsdk\src\sdk\platformmc.c(330): warning C4244: “=”: 从“jint32_t”转换到“puint16_t”，可能丢失数据
-f:\project\电信平台sdk\software\telecomsdk\src\sdk\platformmc.c(342): warning C4267: “函数”: 从“size_t”转换到“puint16_t”，可能丢失数据
-f:\project\电信平台sdk\software\telecomsdk\src\sdk\platformmc.c(398): warning C4244: “初始化”: 从“jint32_t”转换到“puint16_t”，可能丢失数据
-f:\project\电信平台sdk\software\telecomsdk\src\sdk\platformmc.c(478): warning C4244: “初始化”: 从“jint32_t”转换到“puint16_t”，可能丢失数据
-f:\project\电信平台sdk\software\telecomsdk\src\sdk\platformmc.c(548): warning C4018: “>”: 有符号/无符号不匹配
   PropertyManager.c
   正在生成代码...
   sdkDemo.vcxproj -> F:\project\电信平台SDK\software\TelecomSDK\pro\vs\sdkDemo\Debug\sdkDemo.exe

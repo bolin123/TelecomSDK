@@ -20,6 +20,11 @@ _ptag CMServerStatus_t CMServerStatus(PrivateCtx_t *ctx)
     return ctx->serverStatus;
 }
 
+_ptag pbool_t CMServerConnected(PrivateCtx_t *ctx)
+{
+    return (ctx->serverStatus == CM_SERVER_STATUS_ONLINE);
+}
+
 _ptag pbool_t CMIsOnlineOrClientConnect(PrivateCtx_t *ctx)
 {
     if(ctx->serverStatus == CM_SERVER_STATUS_ONLINE)
@@ -34,7 +39,14 @@ _ptag static void updateServerStatus(PrivateCtx_t *ctx, CMServerStatus_t status)
     plog("status = %d", status);
     if(ctx->serverStatus != status)
     {
-        //event
+        if(ctx->serverStatus == CM_SERVER_STATUS_IDLE)
+        {
+            PPrivateEventEmit(ctx, PEVENT_SERVER_ON_OFFLINE, (void *)pfalse);
+        }
+        else if(ctx->serverStatus == CM_SERVER_STATUS_ONLINE)
+        {
+            PPrivateEventEmit(ctx, PEVENT_SERVER_ON_OFFLINE, (void *)ptrue);
+        }
         ctx->serverStatus = status;
     }
     ctx->lastServerStatusTime = PlatformTime();
@@ -162,6 +174,15 @@ _ptag void CMServerLoginSuccess(PrivateCtx_t *ctx, const char *ip, puint16_t por
         PSocketDisconnect(ctx->serverSocket);
     }
     PSocketConnect(ctx->serverSocket, ip, port);
+}
+
+_ptag void CMServerReconnect(PrivateCtx_t *ctx)
+{
+    if(ctx->serverSocket->connected)
+    {
+        PSocketDisconnect(ctx->serverSocket);
+    }
+    updateServerStatus(ctx, CM_SERVER_STATUS_IDLE);
 }
 
 _ptag void CMServerOnline(PrivateCtx_t *ctx)
