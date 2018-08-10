@@ -59,6 +59,20 @@ _ptag int PMModuleSetVersion(PrivateCtx_t *ctx, const char *did, const char *nam
     return -2;
 }
 
+_ptag ResourceItems_t *PMFindResourceItemByID(ResourceItems_t *itemsHead, puint16_t id)
+{
+    ResourceItems_t *item;
+
+    PListForeach(itemsHead, item)
+    {
+        if(item->idValue == id)
+        {
+            return item;
+        }
+    }
+    return PNULL;
+}
+
 _ptag ResourceInfo_t *PMFindResourceInfoByDid(PrivateCtx_t *ctx, const char *did)
 {
     PMSubDevice_t *subDev = PNULL;
@@ -85,6 +99,7 @@ _ptag ResourceInfo_t *PMFindResourceInfoByDid(PrivateCtx_t *ctx, const char *did
     return PNULL;
 }
 
+#if 0
 _ptag int PMResourceInfoSetNumValue(PrivateCtx_t *ctx, const char *did, const char *rscName, puint16_t infoID, const char *infoName, int value)
 {
     ResourceNode_t *rscNode;
@@ -226,10 +241,197 @@ _ptag int PMResourceInfoRegister(PrivateCtx_t *ctx, const char *did, const char 
 
     return -1;
 }
+#endif
 
-_ptag int PMResourceRegister(PrivateCtx_t *ctx, const char *did, const char *name, puint16_t sid, puint16_t infoNum)
+_ptag int PMResourceItemSet(PrivateCtx_t *ctx, const char *did, const char *rscName, puint16_t id, PCommonInfo_t *value, int valNum)
 {
-    puint16_t i;
+    int i;
+    ResourceNode_t *node = PNULL;
+    ResourceItems_t *item;
+    ResourceInfo_t *resource;
+    ResourceInfo_t *head = PMFindResourceInfoByDid(ctx, did);
+
+    if(head == PNULL)
+    {
+        return -1;
+    }
+    PListForeach(head, resource)
+    {
+        if(strcmp(resource->rscName, rscName) == 0)
+        {
+            item = PMFindResourceItemByID(&resource->items, id);
+            if(item)
+            {
+                item->changed = ptrue;
+                item->mode = RESOURCE_MODE_SET;
+                for(i = 0; i < valNum; i++)
+                {
+                    PListForeach(&item->node, node)
+                    {
+                        if(strcmp(node->name, value[i].name) == 0)
+                        {
+                            if(node->type == PROPERTY_TYPE_TEXT)
+                            {
+                                if(node->value.text)
+                                {
+                                    if(strcmp(node->value.text, value[i].value.text) != 0)
+                                    {
+                                        free(node->value.text);
+                                        node->value.text = PNULL;
+                                    }
+                                }
+
+                                if(node->value.text == PNULL)
+                                {
+                                    node->value.text = (char *)malloc(strlen(value[i].value.text) + 1);
+                                    node->value.text[0] = '\0';
+                                    strcpy(node->value.text, value[i].value.text);
+                                }
+                            }
+                            else
+                            {
+                                node->value.num = value[i].value.num;
+                            }
+                        }
+                    }
+                }
+                return 0;
+            }
+            return -1;
+        }
+    }
+    return -1;
+}
+
+_ptag int PMResourceItemDel(PrivateCtx_t *ctx, const char *did, const char *rscName, puint16_t id)
+{
+    ResourceNode_t *node = PNULL;
+    ResourceInfo_t *resource;
+    ResourceInfo_t *head = PMFindResourceInfoByDid(ctx, did);
+
+    if(head == PNULL)
+    {
+        return -1;
+    }
+
+    PListForeach(head, resource)
+    {
+        if(strcmp(resource->rscName, rscName) == 0)
+        {
+            ResourceItems_t *item = PMFindResourceItemByID(&resource->items, id);
+            if(item)
+            {
+                PListDel(item);
+                PListForeach(&item->node, node)
+                {
+                    PListDel(node);
+                    free(node->name);
+                    if(node->type == PROPERTY_TYPE_TEXT)
+                    {
+                        if(node->value.text)
+                        {
+                            free(node->value.text);
+                        }
+                    }
+                    free(node);
+                }
+                free(item);
+                return 0;
+            }
+        }
+    }
+
+    return -1;
+}
+
+_ptag int PMResourceItemAdd(PrivateCtx_t *ctx, const char *did, const char *rscName, puint16_t id, PCommonInfo_t *value, int valNum)
+{
+    int i;
+    ResourceNode_t *node = PNULL;
+    ResourceInfo_t *resource;
+    ResourceInfo_t *head = PMFindResourceInfoByDid(ctx, did);
+
+    if(head == PNULL)
+    {
+        return -1;
+    }
+
+    PListForeach(head, resource)
+    {
+        if(strcmp(resource->rscName, rscName) == 0)
+        {
+            ResourceItems_t *item = PMFindResourceItemByID(&resource->items, id);
+            if(item)
+            {
+                return -1;
+            }
+            item = (ResourceItems_t *)malloc(sizeof(ResourceItems_t));
+            if(item)
+            {
+                item->changed = ptrue;
+                item->idValue = id;
+                item->mode = RESOURCE_MODE_ADD;
+                PListInit(&item->node);
+
+                for(i = 0; i < valNum; i++)
+                {
+                    node = (ResourceNode_t *)malloc(sizeof(ResourceNode_t));
+                    if(node)
+                    {
+                        node->name = (char *)malloc(strlen(value[i].name) + 1);
+                        node->name[0] = '\0';
+                        strcpy(node->name, value[i].name);
+                        if(value[i].isText)
+                        {
+                            node->type = PROPERTY_TYPE_TEXT;
+                            node->value.text = (char *)malloc(strlen(value[i].value.text) + 1);
+                            node->value.text[0] = '\0';
+                            strcpy(node->value.text, value[i].value.text);
+                        }
+                        else
+                        {
+                            node->type = PROPERTY_TYPE_NUM;
+                            node->value.num = value[i].value.num;
+                        }
+                        PListAdd(&item->node, node);
+                    }
+                }
+
+                PListAdd(&resource->items, item);
+                return 0;
+            }
+        }
+    }
+
+    return -1;
+}
+
+_ptag int PMResourceKeywordRegister(PrivateCtx_t *ctx, const char *did, const char *rscName, const char *keyword, pbool_t isText)
+{
+    ResourceInfo_t *resource;
+    ResourceInfo_t *head = PMFindResourceInfoByDid(ctx, did);
+
+    if(head == PNULL)
+    {
+        return -1;
+    }
+
+    PListForeach(head, resource)
+    {
+        if(strcmp(resource->rscName, rscName) == 0)
+        {
+            resource->key[resource->keyNum] = keyword;
+            resource->keyValueIsText[resource->keyNum] = isText;
+            resource->keyNum++;
+            return 0;
+        }
+    }
+    return -1;
+}
+
+_ptag int PMResourceRegister(PrivateCtx_t *ctx, const char *did, const char *rscName, const char *idName, puint16_t sid)
+{
+    //    puint16_t i;
     ResourceInfo_t *resource;
     ResourceInfo_t *head = PMFindResourceInfoByDid(ctx, did);
 
@@ -241,37 +443,28 @@ _ptag int PMResourceRegister(PrivateCtx_t *ctx, const char *did, const char *nam
     resource = (ResourceInfo_t *)malloc(sizeof(ResourceInfo_t));
     if(resource)
     {
-        //malloc resource
-        resource->name = (char *)malloc(strlen(name) + 1);
-        if(resource->name)
+        memset(resource, 0, sizeof(ResourceInfo_t));
+        resource->rscName = (char *)malloc(strlen(rscName) + 1);
+        if(resource->rscName)
         {
-            strcpy(resource->name, name);
+            resource->rscName[0] = '\0';
+            strcpy(resource->rscName, rscName);
+            resource->idName = (char *)malloc(strlen(idName) + 1);
+            if(resource->idName)
+            {
+                resource->idName[0] = '\0';
+                strcpy(resource->idName, idName);
+            }
             resource->serialID = sid;
-            resource->nodeNum = infoNum;
-            resource->node = (ResourceNode_t *)malloc(sizeof(ResourceNode_t) * infoNum);
-            resource->changed = (pbool_t *)malloc(infoNum * sizeof(pbool_t));
-            if(resource->node && resource->changed)
-            {
-                for(i = 0; i < infoNum; i++)
-                {
-                    PListInit(&resource->node[i]);
-                    resource->changed[i] = pfalse;
-                }
-                PListAdd(head, resource);
-            }
-            else
-            {
-                free(resource->name);
-                free(resource);
-                return -2;
-            }
+            PListInit(&resource->items);
+            PListAdd(head, resource);
+            return 0;
         }
         else
         {
             free(resource);
             return -2;
         }
-        return 0;
     }
     return -1;
 }
@@ -298,6 +491,7 @@ _ptag static int propertySetTextValue(PMProperty_t *head, puint16_t id, const ch
 {
     PMProperty_t *property = findPropertyByID(head, id);
 
+    plog("id:%d, value:%s", id, value);
     if(property && property->type == PROPERTY_TYPE_TEXT)
     {
         if(property->value.text == PNULL || strcmp(property->value.text, value) != 0)
@@ -328,6 +522,7 @@ _ptag static int propertySetNumValue(PMProperty_t *head, puint16_t id, puint32_t
 {
     PMProperty_t *property = findPropertyByID(head, id);
 
+    plog("id:%d, value:%d", id, value);
     if(property && property->type == PROPERTY_TYPE_NUM)
     {
         if(property->value.num != value)
@@ -394,7 +589,7 @@ _ptag PMProperty_t *PMFindPropertyHeadByDid(PrivateCtx_t *ctx, const char *did)
             {
                 if(strcmp(subDev->did, did) == 0)
                 {
-                    subDev->online = ptrue;
+                    //subDev->online = ptrue;
                     return &subDev->property;
                 }
             }

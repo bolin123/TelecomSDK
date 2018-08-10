@@ -8,8 +8,8 @@ type *next;type *prev
 (list)->next = (list); \
 (list)->prev = (list);
 
-#define PListFirst(list) ((list)->next == (list) ? NULL : (list)->next)
-#define PListLast(list) ((list)->prev == (list) ? NULL : (list)->prev)
+#define PListFirst(list) ((list)->next == (list) ? PNULL : (list)->next)
+#define PListLast(list) ((list)->prev == (list) ? PNULL : (list)->prev)
 
 #define PListAdd(list, node) \
 node->next = (list);\

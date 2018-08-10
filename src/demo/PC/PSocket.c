@@ -1,7 +1,6 @@
 #include "Adapter/PSocket.h"
 #include "Util/PList.h"
 #include "UserTypes.h"
-#include "PlatformUser.h"
 #include <stdlib.h>
 #include <string.h>
 #include <stdlib.h>
@@ -586,7 +585,7 @@ static int socketSend(int fd, const uint8_t *buf, int len)
 unsigned int PSocketSend(PSocket_t *sock, const uint8_t *data, unsigned int len)
 {
     int ret;
-    ustime_t sendTime;
+    //ustime_t sendTime;
 #if 0
     //TODO
     unsigned int i;
@@ -601,7 +600,7 @@ unsigned int PSocketSend(PSocket_t *sock, const uint8_t *data, unsigned int len)
     {
         if(sock->connected)
         {
-            sendTime = PUserTime();
+            //sendTime = PUserTime();
             ret = socketSend(PRI(sock)->sd, (uint8_t *)data, len);
             if(ret < 0)
             {

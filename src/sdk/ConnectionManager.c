@@ -11,7 +11,7 @@ static ptime_t g_lastServerStatusTime = 0;
 
 _ptag void CMServerSendData(PrivateCtx_t *ctx, const puint8_t *data, puint32_t len)
 {
-    plog("%s", (char *)data);
+    pprintf("Send:\r\n%s\r\n", (char *)data);
     PSocketSend(ctx->serverSocket, data, len);
 }
 
@@ -39,11 +39,11 @@ _ptag static void updateServerStatus(PrivateCtx_t *ctx, CMServerStatus_t status)
     plog("status = %d", status);
     if(ctx->serverStatus != status)
     {
-        if(ctx->serverStatus == CM_SERVER_STATUS_IDLE)
+        if(status == CM_SERVER_STATUS_IDLE)
         {
             PPrivateEventEmit(ctx, PEVENT_SERVER_ON_OFFLINE, (void *)pfalse);
         }
-        else if(ctx->serverStatus == CM_SERVER_STATUS_ONLINE)
+        else if(status == CM_SERVER_STATUS_ONLINE)
         {
             PPrivateEventEmit(ctx, PEVENT_SERVER_ON_OFFLINE, (void *)ptrue);
         }
@@ -97,11 +97,89 @@ _ptag static void serverDisconnectCallback(PSocket_t *sock)
     PlatformMcDisconnectHandle(ctx);
 }
 
-_ptag static void appListenCallback(PSocket_t *sock, PSocket_t *newSock)
+_ptag static void clearAPPConnect(PrivateCtx_t *ctx)
 {
+    puint8_t i;
+
+    for(i = 0; i < PLATFORM_CLIENT_CONNECT_NUM; i++)
+    {
+        ctx->appConnect[i].alloc = pfalse;
+        if(ctx->appConnect[i].socket)
+        {
+            PSocketDestroy(ctx->appConnect[i].socket);
+            ctx->appConnect[i].socket = PNULL;
+        }
+    }
 }
 
-_ptag static void discoverRecvCallback(PSocket_t *sock, const puint8_t *data, pint32_t len)
+_ptag static PClientSocket_t *getNewAPPConnet(PrivateCtx_t *ctx)
+{
+    puint8_t i;
+
+    for(i = 0; i < PLATFORM_CLIENT_CONNECT_NUM; i++)
+    {
+        if(!ctx->appConnect[i].alloc)
+        {
+            return &ctx->appConnect[i];
+        }
+    }
+
+    return PNULL;
+}
+
+_ptag static void appConnectCallback(PSocket_t *sock, pbool_t success)
+{
+    plog("%p, success %d", sock, success);
+}
+
+_ptag static void appRecvCallback(PSocket_t *sock, const puint8_t *data, puint32_t len)
+{
+    PClientSocket_t *clientSocket = (PClientSocket_t *)sock->userdata;;
+
+    plog("%s", (char *)data);
+    PlatformTestCmdRecv(clientSocket->ctx, (char *)data, len);
+}
+
+_ptag static void appDisconnectCallback(PSocket_t *sock)
+{
+    PClientSocket_t *clientSocket;
+    if(sock)
+    {
+        clientSocket = (PClientSocket_t *)sock->userdata;
+        if(clientSocket)
+        {
+            clientSocket->alloc = pfalse;
+            PSocketDestroy(clientSocket->socket);
+            clientSocket->socket = PNULL;
+        }
+    }
+}
+
+_ptag static void appListenCallback(PSocket_t *sock, PSocket_t *newSock)
+{
+    PrivateCtx_t *ctx = (PrivateCtx_t *)sock->userdata;
+    PClientSocket_t *client;
+
+    plog("new sock %p", newSock);
+    client = getNewAPPConnet(ctx);
+
+    if(client)
+    {
+        client->alloc = ptrue;
+        client->ctx = ctx;
+        client->socket = newSock;
+        client->socket->userdata = (void *)client;
+        client->socket->connectCallback    = appConnectCallback;
+        client->socket->recvCallback       = appRecvCallback;
+        client->socket->disconnectCallback = appDisconnectCallback;
+    }
+    else
+    {
+        PSocketDestroy(newSock);
+    }
+}
+
+_ptag static void discoverRecvCallback(PSocket_t *sock, const puint8_t *data, puint32_t len)
 {
 }
 
@@ -114,9 +192,9 @@ _ptag static PSocket_t *initSocket(PSocketType_t type, PrivateCtx_t *ctx)
     plog("socket = %p", socket);
     if(socket)
     {
-        socket->connectCallback = serverConnectCallback;
+        socket->connectCallback    = serverConnectCallback;
         socket->disconnectCallback = serverDisconnectCallback;
-        socket->recvCallback = serverRecvCallback;
+        socket->recvCallback       = serverRecvCallback;
         socket->userdata = (void *)ctx;
         return socket;
     }
@@ -194,6 +272,7 @@ _ptag void CMServerOnline(PrivateCtx_t *ctx)
 
 _ptag void CMStart(PrivateCtx_t *ctx)
 {
+    clearAPPConnect(ctx);
     if(ctx->serverSocket == PNULL)
     {
         ctx->serverSocket = initSocket(PSOCKET_TYPE_TCP, ctx);
@@ -219,12 +298,18 @@ _ptag void CMStart(PrivateCtx_t *ctx)
 
 }
 
+_ptag static void linkupKeepPoll(PrivateCtx_t *ctx)
+{
+    //todo:if linkup change, clear slave socket
+}
+
 _ptag void CMInitialize(void)
 {
+
 }
 
 _ptag void CMPoll(PrivateCtx_t *ctx)
 {
     serverManagerPoll(ctx);
-    //todo:if linkup change, clear slave socket
+    linkupKeepPoll(ctx);
 }

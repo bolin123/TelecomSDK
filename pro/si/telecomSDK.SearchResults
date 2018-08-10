@@ -1,8 +1,5 @@
----- PPrivateEventEmit Matches (7 in 4 files) ----
-ConnectionManager.c (sdk):            PPrivateEventEmit(ctx, PEVENT_SERVER_ON_OFFLINE, (void *)pfalse);
-ConnectionManager.c (sdk):            PPrivateEventEmit(ctx, PEVENT_SERVER_ON_OFFLINE, (void *)ptrue);
-PlatformMc.c (sdk):                PPrivateEventEmit();
-PlatformMc.c (sdk):                    PPrivateEventEmit(ctx, PEVENT_SUBDEV_AUTH_FAILED, (void *)subDev->did);
-PlatformMc.c (sdk):            PPrivateEventEmit(ctx, PEVENT_TIMING_INFO, (puint32_t)strtol(utcstr, NULL, 10));
-PPrivate.c (sdk):_ptag void PPrivateEventEmit(PlatformEvent_t event, void *args)
-PPrivate.h (sdk):void PPrivateEventEmit(PlatformEvent_t event, void *args);
+---- waitOnlineAck Matches (4 in 3 files) ----
+PlatformMc.c (sdk):                        if(subDev->waitOnlineAck) //平台应答之后从设备才确认上线
+PlatformMc.c (sdk):                            subDev->waitOnlineAck = pfalse;
+PPrivate.c (sdk):        subDev->waitOnlineAck = pfalse;
+PPrivate.h (sdk):    pbool_t waitOnlineAck;

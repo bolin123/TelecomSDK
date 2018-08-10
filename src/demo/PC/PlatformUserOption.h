@@ -1,8 +1,13 @@
 #ifndef PLATFORM_USER_OPTION_H
 #define PLATFORM_USER_OPTION_H
 
-#include "UserTypes.h"
+#include <string.h>
+#include <stdlib.h>
+#include <stdio.h>
+#include <stdint.h>
 
+/*
+#include "UserTypes.h"
 bool UserPhyIsLinkup(void);
 #define PIsLinkup UserPhyIsLinkup
 
@@ -11,7 +16,7 @@ uint32_t PlatformUserUtcTime(void);
 
 uint32_t UserGetTickCount(void);
 #define PlatformTime UserGetTickCount
-
+*/
 #define pprintf printf
 #define _ptag
 

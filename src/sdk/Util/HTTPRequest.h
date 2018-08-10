@@ -1,8 +1,9 @@
 #ifndef HTTP_REQUEST_H
 #define HTTP_REQUEST_H
-#include "MT2Types.h"
-#include "MT2List.h"
-#include "Adapter/MT2Socket.h"
+
+#include "PlatformCTypes.h"
+#include "Adapter/PSocket.h"
+#include "Util/PList.h"
 
 void HTTPRequestInitialize(void);
 void HTTPRequestPoll(void);
@@ -21,7 +22,7 @@ typedef struct HTTPParam_st
 {
     char *key;
     char *value;
-    MT2LIST_ENTRY(struct HTTPParam_st);
+    PLIST_ENTRY(struct HTTPParam_st);
 }HTTPParam_t;
 
 typedef struct HTTPRequest_st HTTPRequest_t;
@@ -35,7 +36,7 @@ struct HTTPRequest_st
     void *userData;                           //用户数据
 
     //请求信息
-    MT2Socket_t *socket;
+    PSocket_t *socket;
     const char *method;     //请求方法
     char *url;              //请求URL
     char *host;             //请求主机名
@@ -44,12 +45,12 @@ struct HTTPRequest_st
     HTTPParam_t params;     //请求参数
     HTTPParam_t headers;     //请求头
     char *data;             //请求数据
-    
+
     unsigned short timeout; //超时时间ms
 
     char hasAddToList;
     char hasStart;
-    mtime_t validTime;
+    ptime_t validTime;
 
     //
     char *headerBuf;
@@ -64,7 +65,7 @@ struct HTTPRequest_st
     long respContentDataCount;
     long respContentLength;
 
-    MT2LIST_ENTRY(struct HTTPRequest_st);
+    PLIST_ENTRY(struct HTTPRequest_st);
 };
 
 

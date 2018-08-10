@@ -51,5 +51,5 @@ typedef uint32_t ussize_t;
 #endif
 
 #define uprintf printf
-#define ulog(...) uprintf("[PF] %s[%d]", __FUNCTION__, __LINE__);uprintf(__VA_ARGS__);uprintf("\n");
+#define ulog(...) uprintf("[USR] %s[%d]", __FUNCTION__, __LINE__);uprintf(__VA_ARGS__);uprintf("\n");
 #endif // SYS_TYPES_H

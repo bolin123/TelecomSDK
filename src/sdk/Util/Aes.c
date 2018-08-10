@@ -112,7 +112,7 @@ _ptag static void KeyExpansion()
     puint8_t tempa[4]; // Used for the column/row operations
 
     // The first round key is the key itself.
-    for (i = 0; i < Nk; ++i)
+    for(i = 0; i < Nk; ++i)
     {
         RoundKey[(i * 4) + 0] = Key[(i * 4) + 0];
         RoundKey[(i * 4) + 1] = Key[(i * 4) + 1];
@@ -121,13 +121,13 @@ _ptag static void KeyExpansion()
     }
 
     // All other round keys are found from the previous round keys.
-    for (; (i < (Nb * (Nr + 1))); ++i)
+    for(; (i < (Nb * (Nr + 1))); ++i)
     {
-        for (j = 0; j < 4; ++j)
+        for(j = 0; j < 4; ++j)
         {
             tempa[j] = RoundKey[(i - 1) * 4 + j];
         }
-        if (i % Nk == 0)
+        if(i % Nk == 0)
         {
             // This function rotates the 4 bytes in a word to the left once.
             // [a0,a1,a2,a3] becomes [a1,a2,a3,a0]
@@ -154,7 +154,7 @@ _ptag static void KeyExpansion()
 
             tempa[0] = tempa[0] ^ Rcon[i / Nk];
         }
-        else if (Nk > 6 && i % Nk == 4)
+        else if(Nk > 6 && i % Nk == 4)
         {
             // Function Subword()
             {
@@ -176,9 +176,9 @@ _ptag static void KeyExpansion()
 _ptag static void AddRoundKey(puint8_t round)
 {
     puint8_t i, j;
-    for (i = 0; i < 4; i++)
+    for(i = 0; i < 4; i++)
     {
-        for (j = 0; j < 4; ++j)
+        for(j = 0; j < 4; ++j)
         {
             state[j][i] ^= RoundKey[round * Nb * 4 + i * Nb + j];
         }
@@ -190,9 +190,9 @@ _ptag static void AddRoundKey(puint8_t round)
 _ptag static void SubBytes()
 {
     puint8_t i, j;
-    for (i = 0; i < 4; ++i)
+    for(i = 0; i < 4; ++i)
     {
-        for (j = 0; j < 4; ++j)
+        for(j = 0; j < 4; ++j)
         {
             state[i][j] = getSBoxValue(state[i][j]);
         }
@@ -240,7 +240,7 @@ _ptag static void MixColumns()
 {
     puint8_t i;
     puint8_t Tmp, Tm, t;
-    for (i = 0; i < 4; ++i)
+    for(i = 0; i < 4; ++i)
     {
         t = state[0][i];
         Tmp = state[0][i] ^ state[1][i] ^ state[2][i] ^ state[3][i];
@@ -262,7 +262,7 @@ _ptag static void InvMixColumns()
 {
     int i;
     puint8_t a, b, c, d;
-    for (i = 0; i < 4; i++)
+    for(i = 0; i < 4; i++)
     {
 
         a = state[0][i];
@@ -284,9 +284,9 @@ _ptag static void InvMixColumns()
 _ptag static void InvSubBytes()
 {
     puint8_t i, j;
-    for (i = 0; i < 4; i++)
+    for(i = 0; i < 4; i++)
     {
-        for (j = 0; j < 4; j++)
+        for(j = 0; j < 4; j++)
         {
             state[i][j] = getSBoxInvert(state[i][j]);
         }
@@ -329,9 +329,9 @@ _ptag static void Cipher()
     puint8_t i, j, round = 0;
 
     // Copy the input PlainText to state array.
-    for (i = 0; i < 4; ++i)
+    for(i = 0; i < 4; ++i)
     {
-        for (j = 0; j < 4; ++j)
+        for(j = 0; j < 4; ++j)
         {
             state[j][i] = in[(i * 4) + j];
         }
@@ -343,7 +343,7 @@ _ptag static void Cipher()
     // There will be Nr rounds.
     // The first Nr-1 rounds are identical.
     // These Nr-1 rounds are executed in the loop below.
-    for (round = 1; round < Nr; ++round)
+    for(round = 1; round < Nr; ++round)
     {
         SubBytes();
         ShiftRows();
@@ -359,9 +359,9 @@ _ptag static void Cipher()
 
     // The encryption process is over.
     // Copy the state array to output array.
-    for (i = 0; i < 4; ++i)
+    for(i = 0; i < 4; ++i)
     {
-        for (j = 0; j < 4; ++j)
+        for(j = 0; j < 4; ++j)
         {
             out[(i * 4) + j] = state[j][i];
         }
@@ -373,9 +373,9 @@ _ptag static void InvCipher()
     puint8_t i, j, round = 0;
 
     // Copy the input CipherText to state array.
-    for (i = 0; i < 4; i++)
+    for(i = 0; i < 4; i++)
     {
-        for (j = 0; j < 4; j++)
+        for(j = 0; j < 4; j++)
         {
             state[j][i] = in[i * 4 + j];
         }
@@ -387,7 +387,7 @@ _ptag static void InvCipher()
     // There will be Nr rounds.
     // The first Nr-1 rounds are identical.
     // These Nr-1 rounds are executed in the loop below.
-    for (round = Nr - 1; round > 0; round--)
+    for(round = Nr - 1; round > 0; round--)
     {
         InvShiftRows();
         InvSubBytes();
@@ -403,9 +403,9 @@ _ptag static void InvCipher()
 
     // The decryption process is over.
     // Copy the state array to output array.
-    for (i = 0; i < 4; i++)
+    for(i = 0; i < 4; i++)
     {
-        for (j = 0; j < 4; j++)
+        for(j = 0; j < 4; j++)
         {
             out[i * 4 + j] = state[j][i];
         }
@@ -441,7 +441,7 @@ _ptag static void AES128_ECB_decrypt(puint8_t* input, puint8_t *output)
 _ptag static void mix(unsigned char *buf, const unsigned char *mixData)
 {
     puint8_t i;
-    for (i = 0; i < 16; i++)
+    for(i = 0; i < 16; i++)
     {
         buf[i] ^= mixData[i];
     }
@@ -459,11 +459,11 @@ _ptag long AES128CBCEncrypt(const unsigned char *in, unsigned char *out, long le
 
     setKey(key);
 
-    while (cryptLen <= len)
+    while(cryptLen <= len)
     {
         diffLen = len - cryptLen;
         //不足16字节时填充之后再加密 //使用PKCS5
-        if (diffLen < 16)
+        if(diffLen < 16)
         {
             memset(cryptInBuf, 16 - diffLen, sizeof(cryptInBuf));
             memcpy(cryptInBuf, in + cryptLen, diffLen);
@@ -493,7 +493,7 @@ _ptag long AES128CBCDecrypt(const unsigned char *in, unsigned char *out, long le
     memcpy(mixData, iv, 16);
     setKey(key);
 
-    while (cryptLen < len)
+    while(cryptLen < len)
     {
         memcpy(cryptInBuf, ((puint8_t *)in) + cryptLen, 16);
         AES128_ECB_decrypt(cryptInBuf, out + cryptLen);
@@ -503,7 +503,7 @@ _ptag long AES128CBCDecrypt(const unsigned char *in, unsigned char *out, long le
     }
 
     pkcs5Num = out[len - 1];
-    if (pkcs5Num > 16)
+    if(pkcs5Num > 16)
     {
         pkcs5Num = 0;
     }
@@ -521,11 +521,11 @@ _ptag int AesEncrypt(const unsigned char *in, unsigned char *out, int len,
 
     setKey(key);
 
-    while (cryptLen <= len)
+    while(cryptLen <= len)
     {
         diffLen = len - cryptLen;
         //不足16字节时填充之后再加密 //使用PKCS5
-        if (diffLen < 16)
+        if(diffLen < 16)
         {
             memset(cryptInBuf, 16 - diffLen, sizeof(cryptInBuf));
             memcpy(cryptInBuf, in + cryptLen, diffLen);
@@ -548,14 +548,14 @@ _ptag int AesDecrypt(const unsigned char *in, unsigned char *out, int len,
     int pkcs5Num;
 
     setKey(key);
-    while (cryptLen < len)
+    while(cryptLen < len)
     {
         AES128_ECB_decrypt((puint8_t *)in + cryptLen, out + cryptLen);
         cryptLen += 16;
     }
 
     pkcs5Num = out[len - 1];
-    if (pkcs5Num > 16)
+    if(pkcs5Num > 16)
     {
         pkcs5Num = 0;
     }

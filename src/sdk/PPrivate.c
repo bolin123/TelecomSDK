@@ -8,13 +8,28 @@ _ptag void PPrivateEventEmit(PrivateCtx_t *ctx, PlatformEvent_t event, void *arg
     }
 }
 
+_ptag PMSubDevice_t *PPrivateGetSubDevice(PrivateCtx_t *ctx, const char *subDid)
+{
+    PMSubDevice_t *subDev = PNULL;
+
+    PListForeach(&ctx->subDevices, subDev)
+    {
+        if(strcmp(subDev->did, subDid) == 0)
+        {
+            return subDev;
+        }
+    }
+    return PNULL;
+}
+
 _ptag int PPrivateSubDeviceDel(PrivateCtx_t *ctx, const char *did)
 {
-    puint16_t i;
+//    puint16_t i;
     PMSubDevice_t *subDev = PNULL;
     ModulesVersion_t *module;
     PMProperty_t *property;
     ResourceInfo_t *resource;
+    ResourceItems_t *item;
     ResourceNode_t *node;
 
     PListForeach(&ctx->subDevices, subDev)
@@ -48,32 +63,37 @@ _ptag int PPrivateSubDeviceDel(PrivateCtx_t *ctx, const char *did)
 
             PListForeach(&subDev->resource, resource)
             {
-                if(resource->name)
+                PListDel(resource);
+                if(resource->rscName)
                 {
-                    free(resource->name);
+                    free(resource->rscName);
                 }
-                if(resource->changed)
+                if(resource->idName)
                 {
-                    free(resource->changed);
+                    free(resource->idName);
                 }
-                for(i = 0; i < resource->nodeNum; i++)
+
+                PListForeach(&resource->items, item)
                 {
-                    PListForeach(&resource->node[i], node)
+                    PListDel(item);
+                    PListForeach(&item->node, node)
                     {
                         PListDel(node);
-                        if(node->name)
+                        if(node->type == PROPERTY_TYPE_TEXT)
                         {
-                            free(node->name);
+                            if(node->value.text)
+                            {
+                                free(node->value.text);
+                            }
                         }
-                        if(node->type == PROPERTY_TYPE_TEXT && node->value.text)
-                        {
-                            free(node->value.text);
-                        }
+                        free(node->name);
                         free(node);
                     }
+                    free(item);
                 }
                 free(resource);
             }
+
             free(subDev);
             return 0;
         }
@@ -89,6 +109,7 @@ _ptag int PPrivateSubDeviceRegister(PrivateCtx_t *ctx, const char *did, const ch
     {
         if(strcmp(subDev->did, did) == 0) //already register
         {
+            plog("%s already register!", did);
             return 0;
         }
     }
@@ -98,6 +119,7 @@ _ptag int PPrivateSubDeviceRegister(PrivateCtx_t *ctx, const char *did, const ch
     {
         memset(subDev, 0, sizeof(PMSubDevice_t));
         subDev->online = pfalse;
+        subDev->needPost = pfalse;
         subDev->authStatus = SUBDEV_AUTH_NONE;
         strcpy(subDev->did, did);
         strcpy(subDev->pin, pin);

@@ -1,39 +1,39 @@
 #include "HTTPRequest.h"
-#include "MT2.h"
+#include "PPrivate.h"
 
 #define CONTENT_LENGTH_FLAG "Content-Length: "
 
 static HTTPRequest_t g_httpRequestList;
 
-_mtag void HTTPRequestInitialize(void)
+_ptag void HTTPRequestInitialize(void)
 {
-    MT2ListInit(&g_httpRequestList);
+    PListInit(&g_httpRequestList);
 }
 
-_mtag static void handleEnd(HTTPRequest_t *request, char success)
+_ptag static void handleEnd(HTTPRequest_t *request, char success)
 {
     request->hasStart = 0;
     if(request->dataRecvCb)
     {
-        request->dataRecvCb(request, MNULL, 0, success ? HTTP_REQ_ERROR_SUCCESS : HTTP_REQ_ERROR_FAIL);
+        request->dataRecvCb(request, PNULL, 0, success ? HTTP_REQ_ERROR_SUCCESS : HTTP_REQ_ERROR_FAIL);
     }
 }
 
-_mtag void HTTPRequestPoll(void)
+_ptag void HTTPRequestPoll(void)
 {
     HTTPRequest_t *request;
-    MT2ListForeach(&g_httpRequestList, request)
+    PListForeach(&g_httpRequestList, request)
     {
         //超时
-        if(request->hasStart && MT2TimeHasPast(request->validTime, request->timeout))
+        if(request->hasStart && PTimeHasPast(request->validTime, request->timeout))
         {
-            mlog("http request timeout :%s", request->url);
+            plog("http request timeout :%s", request->url);
             handleEnd(request, 0);
         }
     }
 }
 
-_mtag static char parseRequestURL(HTTPRequest_t *request)
+_ptag static char parseRequestURL(HTTPRequest_t *request)
 {
     char *p;
 
@@ -44,7 +44,7 @@ _mtag static char parseRequestURL(HTTPRequest_t *request)
         p = request->url + strlen(request->url);
     }
 
-    char host[1024] = {0};
+    char host[1024] = { 0 };
     char port[10] = "80";
     memcpy(host, hostStart, (int)(p - hostStart));
 
@@ -59,7 +59,7 @@ _mtag static char parseRequestURL(HTTPRequest_t *request)
     request->host = malloc(strlen(host) + 1);
     strcpy(request->host, host);
     request->port = (unsigned short)atoi(port);
-    mlog("request host %s:%s", request->host, port);
+    plog("request host %s:%s", request->host, port);
 
     //判断是不是域名
     int i;
@@ -68,15 +68,15 @@ _mtag static char parseRequestURL(HTTPRequest_t *request)
     {
         if((host[i] > '9' || host[i] < '0') && host[i] != '.')
         {
-            request->hostIsDomain = true;
+            request->hostIsDomain = ptrue;
             break;
         }
     }
 
-    return true;
+    return ptrue;
 }
 
-_mtag HTTPRequest_t *HTTPRequestCreate(const char *url, const char *method)
+_ptag HTTPRequest_t *HTTPRequestCreate(const char *url, const char *method)
 {
     HTTPRequest_t *request = malloc(sizeof(HTTPRequest_t));
 
@@ -93,47 +93,47 @@ _mtag HTTPRequest_t *HTTPRequestCreate(const char *url, const char *method)
         strcpy(request->url, url);
     }
 
-    MT2ListInit(&request->params);
-    MT2ListInit(&request->headers);
-    request->host = MNULL;
-    request->socket = MNULL;
-    request->dataRecvCb = MNULL;
-    request->data = MNULL;
+    PListInit(&request->params);
+    PListInit(&request->headers);
+    request->host = PNULL;
+    request->socket = PNULL;
+    request->dataRecvCb = PNULL;
+    request->data = PNULL;
     request->hasAddToList = 0;
     request->timeout = 10000;
 
     if(parseRequestURL(request))
     {
 
-        MT2ListAdd(&g_httpRequestList, request);
+        PListAdd(&g_httpRequestList, request);
         request->hasAddToList = 1;
         return request;
     }
     else
     {
         HTTPRequestDestroy(request);
-        return MNULL;
+        return PNULL;
     }
 }
 
-_mtag void HTTPRequestAddHeader(HTTPRequest_t *request, const char *key, const char *value)
+_ptag void HTTPRequestAddHeader(HTTPRequest_t *request, const char *key, const char *value)
 {
     HTTPParam_t *param = malloc(sizeof(HTTPParam_t));
     param->key = malloc(strlen(key) + 1);
     param->value = malloc(strlen(value) + 1);
     strcpy(param->key, key);
     strcpy(param->value, value);
-    MT2ListAdd(&request->headers, param);
+    PListAdd(&request->headers, param);
 }
 
-_mtag static void destroyParam(HTTPParam_t *param)
+_ptag static void destroyParam(HTTPParam_t *param)
 {
     free(param->key);
     free(param->value);
     free(param);
 }
 
-_mtag void HTTPRequestDestroy(HTTPRequest_t *request)
+_ptag void HTTPRequestDestroy(HTTPRequest_t *request)
 {
     free(request->url);
 
@@ -141,7 +141,7 @@ _mtag void HTTPRequestDestroy(HTTPRequest_t *request)
 
     if(request->hasAddToList)
     {
-        MT2ListDel(request);
+        PListDel(request);
     }
 
     free(request->headerBuf);
@@ -151,12 +151,12 @@ _mtag void HTTPRequestDestroy(HTTPRequest_t *request)
         free(request->data);
     }
 
-    MT2ListForeach(&request->params, param)
+    PListForeach(&request->params, param)
     {
         destroyParam(param);
     }
 
-    MT2ListForeach(&request->headers, param)
+    PListForeach(&request->headers, param)
     {
         destroyParam(param);
     }
@@ -164,36 +164,36 @@ _mtag void HTTPRequestDestroy(HTTPRequest_t *request)
     if(request->host)
     {
         free(request->host);
-        request->host = MNULL;
+        request->host = PNULL;
     }
 
     if(request->socket)
     {
-        MT2SocketDestroy(request->socket);
+        PSocketDestroy(request->socket);
     }
 
-    
+
     free(request);
 }
 
-_mtag void HTTPRequestAddParam(HTTPRequest_t *request, const char *key, const char *value)
+_ptag void HTTPRequestAddParam(HTTPRequest_t *request, const char *key, const char *value)
 {
     HTTPParam_t *param = malloc(sizeof(HTTPParam_t));
     param->key = malloc(strlen(key) + 1);
     param->value = malloc(strlen(value) + 1);
     strcpy(param->key, key);
     strcpy(param->value, value);
-    MT2ListAdd(&request->params, param);
+    PListAdd(&request->params, param);
 }
 
-_mtag static void connectCb(MT2Socket_t *sock, mbool_t result)
+_ptag static void connectCb(PSocket_t *sock, pbool_t result)
 {
     HTTPRequest_t *request = sock->userdata;
     HTTPParam_t *param;
 
-    mlog("connect %s result=%d", request->url, result);
+    plog("connect %s result=%d", request->url, result);
 
-    if(result == mfalse)
+    if(result == pfalse)
     {
         //handleEnd(request, 0);
         return;
@@ -203,9 +203,9 @@ _mtag static void connectCb(MT2Socket_t *sock, mbool_t result)
     request->headerBufCount = 0;
     request->respContentLength = 0;
 
-    char reqData[2048] = {0};
+    char reqData[2048] = { 0 };
     char *path = strstr(request->url, "/");
-    if(path == MNULL)
+    if(path == PNULL)
     {
         path = "/";
     }
@@ -226,7 +226,7 @@ _mtag static void connectCb(MT2Socket_t *sock, mbool_t result)
     strcat(reqData, "Connection: Keep-Alive\r\n");
     strcat(reqData, "Content-Type: application/x-www-form-urlencoded\r\n");
 
-    MT2ListForeach(&request->headers, param)
+    PListForeach(&request->headers, param)
     {
         strcat(reqData, param->key);
         strcat(reqData, ": ");
@@ -247,7 +247,7 @@ _mtag static void connectCb(MT2Socket_t *sock, mbool_t result)
     //带参数
     else
     {
-        MT2ListForeach(&request->params, param)
+        PListForeach(&request->params, param)
         {
             if(hasParamBefore)
             {
@@ -255,7 +255,7 @@ _mtag static void connectCb(MT2Socket_t *sock, mbool_t result)
             }
 
             contentLen = contentLen + (unsigned short)strlen(param->key) + (unsigned short)strlen(param->value) + 1;
-            hasParamBefore = true;
+            hasParamBefore = ptrue;
         }
     }
 
@@ -269,7 +269,7 @@ _mtag static void connectCb(MT2Socket_t *sock, mbool_t result)
     else
     {
         hasParamBefore = 0;
-        MT2ListForeach(&request->params, param)
+        PListForeach(&request->params, param)
         {
             if(hasParamBefore)
             {
@@ -279,26 +279,26 @@ _mtag static void connectCb(MT2Socket_t *sock, mbool_t result)
             strcat(reqData, param->key);
             strcat(reqData, "=");
             strcat(reqData, param->value);
-            hasParamBefore = true;
+            hasParamBefore = ptrue;
         }
     }
 
-    mlog("request");
+    plog("request");
     unsigned short i;
     unsigned short datalen = (unsigned short)strlen(reqData);
     for(i = 0; i < datalen; i++)
     {
-        mprintf("%c", reqData[i]);
+        pprintf("%c", reqData[i]);
     }
-    mprintf("\n");
-    MT2SocketSend(request->socket, (unsigned char *)reqData, datalen);
+    pprintf("\n");
+    PSocketSend(request->socket, (unsigned char *)reqData, datalen);
 }
 
-_mtag static void disconnectCb(MT2Socket_t *sock)
+_ptag static void disconnectCb(PSocket_t *sock)
 {
     HTTPRequest_t *request = sock->userdata;
 
-    mlog("disconnect %s", request->url);
+    plog("disconnect %s", request->url);
 
     handleEnd(request, 0);
 }
@@ -306,7 +306,7 @@ _mtag static void disconnectCb(MT2Socket_t *sock)
 
 #define CHAR_DIGIT(ch) ((ch) - '0' < 10 ? (ch) - '0' : (ch) - 'a' + 10)
 
-_mtag static long parseHexNumStr(const char *str)
+_ptag static long parseHexNumStr(const char *str)
 {
     unsigned char len = (unsigned char)strlen(str);
     unsigned char i;
@@ -328,13 +328,13 @@ _mtag static long parseHexNumStr(const char *str)
     return num;
 }
 
-_mtag static void recvCb(MT2Socket_t *sock, const unsigned char *data, mint32_t len)
+_ptag static void recvCb(PSocket_t *sock, const unsigned char *data, unsigned int len)
 {
     HTTPRequest_t *request = sock->userdata;
 
-    long i;
+    unsigned int i;
 
-    request->validTime = MT2Time();
+    request->validTime = PlatformTime();
 
     //\r\n\r\n表示HTTP头结束
     //接收header中
@@ -356,18 +356,18 @@ _mtag static void recvCb(MT2Socket_t *sock, const unsigned char *data, mint32_t 
 
             if(request->rnCount == 4)
             {
-                mlog("recv header:%s", request->headerBuf);
+                plog("recv header:%s", request->headerBuf);
 
                 char *p = strstr((char *)request->headerBuf, CONTENT_LENGTH_FLAG);
                 if(p)
                 {
                     p += strlen(CONTENT_LENGTH_FLAG);
-                    char lenStr[10] = {0};
+                    char lenStr[10] = { 0 };
                     char *p2 = strchr(p, '\r');
                     memcpy(lenStr, p, p2 - p);
                     request->respContentLength = atoi(lenStr);
                     request->respContentDataCount = 0;
-                    mlog("respContentLength %d", request->respContentLength);
+                    plog("respContentLength %d", request->respContentLength);
                 }
                 else
                 {
@@ -391,7 +391,7 @@ _mtag static void recvCb(MT2Socket_t *sock, const unsigned char *data, mint32_t 
     //指定Content-Length
     if(request->respContentLength != 0)
     {
-        mlog("recv data, len:%d count:%d contentLen:%d", len, request->respContentDataCount, request->respContentLength);
+        plog("recv data, len:%d count:%d contentLen:%d", len, request->respContentDataCount, request->respContentLength);
         request->respContentDataCount += len;
 
         if(request->dataRecvCb)
@@ -401,8 +401,8 @@ _mtag static void recvCb(MT2Socket_t *sock, const unsigned char *data, mint32_t 
 
         if(request->respContentDataCount >= request->respContentLength)
         {
-            mlog("success");
-            handleEnd(request, true);
+            plog("success");
+            handleEnd(request, ptrue);
         }
     }
     //transfer-encoding:chunked，chunk格式:[hex]\r\n[Data]\r\n[...]0\r\n
@@ -410,7 +410,7 @@ _mtag static void recvCb(MT2Socket_t *sock, const unsigned char *data, mint32_t 
     {
         for(i = 0; i < len; i++)
         {
-            mprintf("%c", data[i]);
+            pprintf("%c", data[i]);
 
             //获取chunk长度
             if(request->chunkLen == 0)
@@ -431,10 +431,10 @@ _mtag static void recvCb(MT2Socket_t *sock, const unsigned char *data, mint32_t 
                     request->chunkRNCount = 0;
                     request->headerBufCount = 0;
                     request->chunkLen = (unsigned short)parseHexNumStr(request->headerBuf);
-                    mlog("chunk len:%d[%s]", request->chunkLen, request->headerBuf);
+                    plog("chunk len:%d[%s]", request->chunkLen, request->headerBuf);
                     if(request->chunkLen == 0)
                     {
-                        handleEnd(request, true);
+                        handleEnd(request, ptrue);
                         return;
                     }
                     else
@@ -457,23 +457,23 @@ _mtag static void recvCb(MT2Socket_t *sock, const unsigned char *data, mint32_t 
     }
 }
 
-_mtag static void dnsResolveCb(const char *host, const char *ip, unsigned char success)
+_ptag static void dnsResolveCb(const char *host, const char *ip, unsigned char success)
 {
-    mlog("dns %s->%s", host, ip);
+    plog("dns %s->%s", host, ip);
     HTTPRequest_t *request;
-    MT2ListForeach(&g_httpRequestList, request)
+    PListForeach(&g_httpRequestList, request)
     {
         if(strcmp(request->host, host) == 0)
         {
             if(success)
             {
-                request->socket = MT2SocketCreate(MT2SOCKET_TYPE_TCP);
+                request->socket = PSocketCreate(PSOCKET_TYPE_TCP);
                 request->socket->connectCallback = connectCb;
                 request->socket->disconnectCallback = disconnectCb;
                 request->socket->recvCallback = recvCb;
                 request->socket->userdata = request;
-                mlog("connect");
-                MT2SocketConnect(request->socket, ip, request->port);
+                plog("connect");
+                PSocketConnect(request->socket, ip, request->port);
             }
             else
             {
@@ -485,7 +485,7 @@ _mtag static void dnsResolveCb(const char *host, const char *ip, unsigned char s
     }
 }
 
-_mtag void HTTPRequestSetData(HTTPRequest_t *request, const char *data)
+_ptag void HTTPRequestSetData(HTTPRequest_t *request, const char *data)
 {
     if(request->data)
     {
@@ -495,26 +495,26 @@ _mtag void HTTPRequestSetData(HTTPRequest_t *request, const char *data)
     strcpy(request->data, data);
 }
 
-_mtag void HTTPRequestStart(HTTPRequest_t *request)
+_ptag void HTTPRequestStart(HTTPRequest_t *request)
 {
-    request->hasStart = true;
-    request->validTime = MT2Time();
+    request->hasStart = ptrue;
+    request->validTime = PlatformTime();
 
-    mlog("start, url=%s", request->url);
+    plog("start, url=%s", request->url);
     if(request->hostIsDomain)
     {
-        mlog("start dns resolve");
-        MT2SocketDnsResolve(request->host, dnsResolveCb);
+        plog("start dns resolve");
+        PSocketDnsResolve(request->host, dnsResolveCb);
     }
     else
     {
-        request->socket = MT2SocketCreate(MT2SOCKET_TYPE_TCP);
+        request->socket = PSocketCreate(PSOCKET_TYPE_TCP);
         request->socket->connectCallback = connectCb;
         request->socket->disconnectCallback = disconnectCb;
         request->socket->recvCallback = recvCb;
         request->socket->userdata = request;
-        mlog("connect");
-        MT2SocketConnect(request->socket, request->host, request->port);
+        plog("connect");
+        PSocketConnect(request->socket, request->host, request->port);
     }
 }
 

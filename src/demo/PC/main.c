@@ -1,5 +1,6 @@
 #include "UserTypes.h"
-#include "../PlatformUser.h"
+//#include "../PlatformUser.h"
+#include "../miniGW.h"
 
 #ifdef __WIN__
 #include <Windows.h>
@@ -27,14 +28,15 @@ int main()
 #endif//socket≥ı ºªØ
 
     PSocketInitialize();
-	PlatformUserInit();
+	//PlatformUserInit();
+	miniGWInit();
 
 	while (1)
 	{
 	    PSocketPoll();
         PSocketBackPoll();
-        PlatformUserPoll();
-        //PlatformUserTimePass(1);
+        //PlatformUserPoll();
+        miniGWPoll();
 		SLEEP_MS();
 	}
 
