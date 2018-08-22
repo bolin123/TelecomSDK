@@ -3,6 +3,8 @@
 
 #define ROM_FUNC
 
+#define COMPILE_DEMO_1 //COMPILE_DEMO_2
+
 #include <string.h>
 #include <stdlib.h>
 #include <stdio.h>

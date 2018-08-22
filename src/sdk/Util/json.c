@@ -22,11 +22,8 @@
 #define J_LOG(...)
 #endif
 
-
-
-#define J_TRUE_STR "mtrue"
-#define J_FALSE_STR "mfalse"
-
+//#define J_TRUE_STR "true"
+//#define J_FALSE_STR "false"
 
 #ifdef ESP8266
 #define _xtag __attribute__((section(".irom0.text")))

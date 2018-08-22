@@ -1,5 +1,5 @@
 #include "Platform.h"
-#include "PPrivate.h"
+#include "ELink.h"
 #include "PlatformMc.h"
 #include "PlatformOTA.h"
 #include "PropertyManager.h"
@@ -97,6 +97,7 @@ _ptag void PlatformOTAResult(PlatformCtx_t *ctx, ptBool_t success)
 {
     plog("success %d", success);
     PlatformMcOTAResultReport(ctx->private, success);
+    ELinkUpgradeResultReport(ctx->private, success);
     PlatformOTAStopDownlaod(ctx->private);
 }
 
@@ -110,17 +111,34 @@ _ptag void PlatformSetModuleVersion(PlatformCtx_t *ctx, const char *did, const c
     PMModuleSetVersion(ctx->private, did, name, version);
 }
 
-_ptag void PlatformSetDeviceInfo(PlatformCtx_t *ctx, const char *did, const char *pin, const char *model, const char *version)
+_ptag void PlatformSetDeviceInfo(PlatformCtx_t *ctx, const char *did, const char *pin, const char *model, const char *version, const char *factoryName)
 {
     strncpy(ctx->private->did, did, PLATFORM_DEVID_LEN);
     strncpy(ctx->private->pin, pin, PLATFORM_PIN_LEN);
     strncpy(ctx->private->model, model, PLATFORM_MODEL_LEN);
     strncpy(ctx->private->version, version, PLATFORM_VERSION_LEN);
+    strncpy(ctx->private->factoryName, factoryName, PLATFORM_FACTORY_NAME_LEN);
 }
 
 _ptag void PlatformStart(PlatformCtx_t *ctx)
 {
     CMStart(ctx->private);
+    ELinkStart();
+}
+
+_ptag int PlatformSubDeviceHeartbeat(PlatformCtx_t *ctx, const char *did)
+{
+    return PPrivateSubDeviceHeartbeat(ctx->private, did);
+}
+
+_ptag int PlatformSubDeviceRSSIValue(PlatformCtx_t *ctx, const char *did, int rssi)
+{
+    return PPrivateSubDeviceRSSIValue(ctx->private, did, rssi);
+}
+
+_ptag int PlatformSubDeviceBatteryRemain(PlatformCtx_t *ctx, const char *did, int remain)
+{
+    return PPrivateSubDeviceBatteryRemain(ctx->private, did, remain);
 }
 
 _ptag int PlatformSubDeviceUnbind(PlatformCtx_t *ctx, const char *did)
@@ -132,12 +150,13 @@ _ptag int PlatformSubDeviceUnbind(PlatformCtx_t *ctx, const char *did)
 
 _ptag int PlatformSubDeviceOnOffline(PlatformCtx_t *ctx, const char *did, ptBool_t online)
 {
+    ELinkSubdeviceOnoffLine(ctx->private, did, online);
     return PlatformMcSubDeviceOnOffline(ctx->private, did, online);
 }
 
-_ptag int PlatformSubDeviceRegister(PlatformCtx_t *ctx, const char *did, const char *pin, const char *model, const char *version)
+_ptag int PlatformSubDeviceRegister(PlatformCtx_t *ctx, const char *did, const char *pin, const char *model, const char *version, const char *factoryName)
 {
-    return PPrivateSubDeviceRegister(ctx->private, did, pin, model, version);
+    return PPrivateSubDeviceRegister(ctx->private, did, pin, model, version, factoryName);
 }
 
 _ptag ptBool_t PlatformServerConnected(PlatformCtx_t *ctx)
@@ -171,11 +190,27 @@ _ptag PlatformCtx_t *PlatformCtxCreate(void)
     return PNULL;
 }
 
+_ptag static void linkStatusPoll(void)
+{
+    static pbool_t linkup = pfalse;
+
+    if(PIsLinkup() != linkup)
+    {
+        if(!PIsLinkup()) //link down
+        {
+            ELinkLinkdown();
+            PlatformMcLinkdown();
+        }
+        linkup = PIsLinkup();
+    }
+}
+
 _ptag void PlatformInitialize(void)
 {
     PPrivateInitialize();
     CMInitialize();
     PlatformMcInitialize();
+    ELinkInitialize();
     HTTPRequestInitialize();
 }
 
@@ -183,7 +218,9 @@ _ptag void PlatformPoll(PlatformCtx_t *ctx)
 {
     PlatformMcPoll(ctx->private);
     CMPoll(ctx->private);
+    ELinkPoll(ctx->private);
     HTTPRequestPoll();
+    linkStatusPoll();
 }
 
 

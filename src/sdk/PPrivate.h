@@ -102,11 +102,15 @@ typedef struct PMSubDevice_st
     pbool_t needPost;
     pbool_t onlineAcked;
     ptime_t onlineTime;
+    ptime_t hbTime;
     SubDevAuthStatus_t authStatus;  //¼øÈ¨
     char did[PLATFORM_DEVID_LEN + 1];
     char pin[PLATFORM_PIN_LEN + 1];
     char model[PLATFORM_MODEL_LEN + 1];
     char version[PLATFORM_VERSION_LEN + 1];
+    char factoryName[PLATFORM_FACTORY_NAME_LEN];
+    int rssi;
+    int battery;
     ModulesVersion_t modules;
     PMProperty_t property;
     ResourceInfo_t resource;
@@ -144,8 +148,7 @@ typedef struct PrivateCtx_st
     char did[PLATFORM_DEVID_LEN + 1];
     char pin[PLATFORM_PIN_LEN + 1];
     char model[PLATFORM_MODEL_LEN + 1];
-
-    char ctei[PLATFORM_CTEI_LEN + 1];
+    char factoryName[PLATFORM_FACTORY_NAME_LEN];
 
     char version[PLATFORM_VERSION_LEN + 1];
     char sessionkey[PLATFORM_SESSIONKEY_LEN + 1];
@@ -182,8 +185,13 @@ typedef struct PrivateCtx_st
 
 void PPrivateEventEmit(PrivateCtx_t *ctx, PlatformEvent_t event, void *args);
 PMSubDevice_t *PPrivateGetSubDevice(PrivateCtx_t *ctx, const char *subDid);
+
+int PPrivateSubDeviceHeartbeat(PrivateCtx_t *ctx, const char *did);
+int PPrivateSubDeviceRSSIValue(PrivateCtx_t *ctx, const char *did, int rssi);
+int PPrivateSubDeviceBatteryRemain(PrivateCtx_t *ctx, const char *did, int remain);
+
 int PPrivateSubDeviceDel(PrivateCtx_t *ctx, const char *did);
-int PPrivateSubDeviceRegister(PrivateCtx_t *ctx, const char *did, const char *pin, const char *model, const char *version);
+int PPrivateSubDeviceRegister(PrivateCtx_t *ctx, const char *did, const char *pin, const char *model, const char *version, const char *factoryName);
 PrivateCtx_t *PPrivateCreate(void);
 void PPrivateInitialize(void);
 void PPrivatePoll(void);

@@ -1,3 +1,11 @@
+/*
+* PSocket.h
+*
+* 网络接口
+* 用户需要实现该头文件定义的接口函数
+*
+* By Berlin 2018.08 <chenbl@yumair.cn>
+*/
 #ifndef PSOCKET_ADAPTER_H
 #define PSOCKET_ADAPTER_H
 
@@ -19,12 +27,12 @@ typedef void (*PSocketDisconnectCallback_t)(PSocket_t *sock);
 struct PSocket_st
 {
     PSocketType_t type;
-    unsigned char connected;
+    unsigned char connected; //是否连接到以太网 1:连接，0:未连接
     PSocketRecvCallback_t recvCallback;
     PSocketConnectCallback_t connectCallback;
     PSocketDisconnectCallback_t disconnectCallback;
     PSocketListenCallback_t listenCallback;
-    void *userdata;
+    void *userdata; //用户数据
     void *pri;
 };
 

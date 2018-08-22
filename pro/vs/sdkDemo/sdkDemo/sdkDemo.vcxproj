@@ -19,12 +19,13 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\..\..\src\demo\miniGW.c" />
+    <ClCompile Include="..\..\..\..\src\demo\demo1.c" />
+    <ClCompile Include="..\..\..\..\src\demo\demo2.c" />
+    <ClCompile Include="..\..\..\..\src\demo\PC\Adapter\PAdapter.c" />
+    <ClCompile Include="..\..\..\..\src\demo\PC\Adapter\PSocket.c" />
     <ClCompile Include="..\..\..\..\src\demo\PC\main.c" />
-    <ClCompile Include="..\..\..\..\src\demo\PC\PAdapter.c" />
-    <ClCompile Include="..\..\..\..\src\demo\PC\PSocket.c" />
-    <ClCompile Include="..\..\..\..\src\demo\PlatformUser.c" />
     <ClCompile Include="..\..\..\..\src\sdk\ConnectionManager.c" />
+    <ClCompile Include="..\..\..\..\src\sdk\ELink.c" />
     <ClCompile Include="..\..\..\..\src\sdk\Platform.c" />
     <ClCompile Include="..\..\..\..\src\sdk\PlatformMc.c" />
     <ClCompile Include="..\..\..\..\src\sdk\PlatformOTA.c" />
@@ -37,13 +38,14 @@
     <ClCompile Include="..\..\..\..\src\sdk\Util\json.c" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\..\..\src\demo\miniGW.h" />
+    <ClInclude Include="..\..\..\..\src\demo\demo1.h" />
+    <ClInclude Include="..\..\..\..\src\demo\demo2.h" />
     <ClInclude Include="..\..\..\..\src\demo\PC\PlatformUserOption.h" />
     <ClInclude Include="..\..\..\..\src\demo\PC\UserTypes.h" />
-    <ClInclude Include="..\..\..\..\src\demo\PlatformUser.h" />
     <ClInclude Include="..\..\..\..\src\sdk\Adapter\PAdapter.h" />
     <ClInclude Include="..\..\..\..\src\sdk\Adapter\PSocket.h" />
     <ClInclude Include="..\..\..\..\src\sdk\ConnectionManager.h" />
+    <ClInclude Include="..\..\..\..\src\sdk\ELink.h" />
     <ClInclude Include="..\..\..\..\src\sdk\McCMD.h" />
     <ClInclude Include="..\..\..\..\src\sdk\Platform.h" />
     <ClInclude Include="..\..\..\..\src\sdk\PlatformCTypes.h" />

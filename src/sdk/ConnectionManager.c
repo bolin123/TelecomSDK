@@ -6,7 +6,6 @@
 static PSocket_t *g_serverSocket = PNULL;
 static PSocket_t *g_tcpListenSocket;
 static PSocket_t *g_udpListenSocket;
-//static CMServerStatus_t g_serverStatus = CM_SERVER_STATUS_IDLE;
 static ptime_t g_lastServerStatusTime = 0;
 
 _ptag void CMServerSendData(PrivateCtx_t *ctx, const puint8_t *data, puint32_t len)
@@ -235,7 +234,6 @@ _ptag static void serverManagerPoll(PrivateCtx_t *ctx)
         {
             if(PTimeHasPast(ctx->lastServerStatusTime, 20000))
             {
-                // TODO:timeout
                 updateServerStatus(ctx, CM_SERVER_STATUS_IDLE);
             }
         }
@@ -298,11 +296,6 @@ _ptag void CMStart(PrivateCtx_t *ctx)
 
 }
 
-_ptag static void linkupKeepPoll(PrivateCtx_t *ctx)
-{
-    //todo:if linkup change, clear slave socket
-}
-
 _ptag void CMInitialize(void)
 {
 
@@ -311,5 +304,5 @@ _ptag void CMInitialize(void)
 _ptag void CMPoll(PrivateCtx_t *ctx)
 {
     serverManagerPoll(ctx);
-    linkupKeepPoll(ctx);
 }
+

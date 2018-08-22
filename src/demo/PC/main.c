@@ -1,6 +1,9 @@
 #include "UserTypes.h"
-//#include "../PlatformUser.h"
-#include "../miniGW.h"
+#if defined(COMPILE_DEMO_1)
+#include "../demo1.h"
+#else
+#include "../demo2.h"
+#endif
 
 #ifdef __WIN__
 #include <Windows.h>
@@ -29,14 +32,14 @@ int main()
 
     PSocketInitialize();
 	//PlatformUserInit();
-	miniGWInit();
+	DemoInit();
 
 	while (1)
 	{
 	    PSocketPoll();
         PSocketBackPoll();
         //PlatformUserPoll();
-        miniGWPoll();
+        DemoPoll();
 		SLEEP_MS();
 	}
 

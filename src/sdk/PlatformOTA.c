@@ -9,7 +9,7 @@ static void startHttp(PrivateCtx_t *ctx);
  * Function Defination
  ******************************************************************************/
 
-_ptag void httpRequestDataRecvCallback(HTTPRequest_t *request, const puint8_t *data, puint16_t len, HTTPRequestError_t error)
+_ptag static void httpRequestDataRecvCallback(HTTPRequest_t *request, const puint8_t *data, puint16_t len, HTTPRequestError_t error)
 {
     PrivateCtx_t *ctx = request->userData;
 

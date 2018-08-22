@@ -5,6 +5,7 @@
 #include "PPrivate.h"
 
 void PlatformTestCmdRecv(PrivateCtx_t *ctx, const char *msg, puint32_t len);
+void PlatformMcLinkdown(void);
 
 void PlatformMcOTAResultReport(PrivateCtx_t *ctx, pbool_t success);
 void PlatformMcErrReport(PrivateCtx_t *ctx, const char *did, PErrorReport_t *err);

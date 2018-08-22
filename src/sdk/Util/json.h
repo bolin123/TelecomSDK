@@ -25,8 +25,8 @@ typedef unsigned char jbyte_t;
 #define J_FALSE 0
 #define J_NULL ((void *)0)
 
-#define J_TRUE_STR "mtrue"
-#define J_FALSE_STR "mfalse"
+#define J_TRUE_STR "true"
+#define J_FALSE_STR "false"
 
 
 typedef enum

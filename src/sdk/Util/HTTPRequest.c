@@ -190,6 +190,7 @@ _ptag static void connectCb(PSocket_t *sock, pbool_t result)
 {
     HTTPRequest_t *request = sock->userdata;
     HTTPParam_t *param;
+    pbool_t extHead = pfalse;
 
     plog("connect %s result=%d", request->url, result);
 
@@ -224,7 +225,6 @@ _ptag static void connectCb(PSocket_t *sock, pbool_t result)
     strcat(reqData, "\r\n");
 
     strcat(reqData, "Connection: Keep-Alive\r\n");
-    strcat(reqData, "Content-Type: application/x-www-form-urlencoded\r\n");
 
     PListForeach(&request->headers, param)
     {
@@ -232,6 +232,11 @@ _ptag static void connectCb(PSocket_t *sock, pbool_t result)
         strcat(reqData, ": ");
         strcat(reqData, param->value);
         strcat(reqData, "\r\n");
+        extHead = ptrue;
+    }
+    if(!extHead)
+    {
+        strcat(reqData, "Content-Type: application/x-www-form-urlencoded\r\n");
     }
 
     unsigned short contentLen = 0;

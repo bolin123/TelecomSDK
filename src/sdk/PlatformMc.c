@@ -208,7 +208,7 @@ _ptag void PlatformMcDisconnectHandle(PrivateCtx_t *ctx)
         msg = PNULL;
     }
 
-    /* TODO:reset sub device authentication flag*/
+    /*reset sub device authentication flag*/
     PListForeach(&ctx->subDevices, subDev)
     {
         subDev->authStatus = SUBDEV_AUTH_NONE;
@@ -228,7 +228,7 @@ _ptag static void messageSendPoll(void)
             {
                 findAndDelMessage(msg->sequence);
                 PlatformMcDisconnectHandle(msg->ctx);
-                CMServerReconnect(msg->ctx);
+                CMServerReconnect(msg->ctx);//reconnect
             }
             else
             {
@@ -784,6 +784,7 @@ _ptag int PlatformMcSubDeviceOnOffline(PrivateCtx_t *ctx, const char *did, pbool
 {
     PMSubDevice_t *subDev = PPrivateGetSubDevice(ctx, did);
 
+    plog("%s, online = %d", did, online);
     if(subDev)
     {
         subDev->online = online;
@@ -898,6 +899,10 @@ _ptag static void parseReplyMessage(PrivateCtx_t *ctx, char *did, int cmd, json_
     }
 }
 
+_ptag void PlatformMcLinkdown(void)
+{
+}
+
 _ptag void PlatformTestCmdRecv(PrivateCtx_t *ctx, const char *msg, puint32_t len)
 {
     puint16_t cmd;
@@ -910,6 +915,8 @@ _ptag void PlatformTestCmdRecv(PrivateCtx_t *ctx, const char *msg, puint32_t len
     }
 
     parseCtrolMessage(ctx, did, cmd, contents);
+
+    json_item_destroy(contents);
 }
 
 _ptag void PlatformMcRecv(PrivateCtx_t *ctx, const char *msg, puint32_t len)
@@ -1053,7 +1060,7 @@ _ptag static void postProperties(PrivateCtx_t *ctx, PMProperty_t *properties, co
 
 _ptag static void postResources(PrivateCtx_t *ctx, ResourceInfo_t *resources, const char *did, pbool_t force)
 {
-    puint16_t i;
+//    puint16_t i;
     pbool_t changed = pfalse;
     ResourceInfo_t *info;
     ResourceNode_t *nodeInfo;
@@ -1138,7 +1145,7 @@ _ptag void PlatformMcPostAll(PrivateCtx_t *ctx)
 
 _ptag void checkPropertiesAndResources(PrivateCtx_t *ctx)
 {
-    puint16_t i;
+//    puint16_t i;
     pbool_t changed = pfalse;
     PMProperty_t *property;
     ResourceInfo_t *resource;
@@ -1231,7 +1238,7 @@ _ptag static void subDeviceForcePost(PrivateCtx_t *ctx)
 
 _ptag static void subDevicePropertiesAndResources(PrivateCtx_t *ctx)
 {
-    puint16_t i;
+//    puint16_t i;
     pbool_t changed = pfalse;
     PMSubDevice_t *subDev;
     PMProperty_t *property;
@@ -1301,6 +1308,20 @@ _ptag static void heartBeatPoll(PrivateCtx_t *ctx)
 _ptag void PlatformMcLogin(PrivateCtx_t *ctx)
 {
     char buff[256] = "";
+    PMessageList_t *msg;
+    /*clear send list cache*/
+    PListForeach(&g_messageList, msg)
+    {
+        PListDel(msg);
+        if(msg->data)
+        {
+            free(msg->data);
+            msg->data = PNULL;
+        }
+        free(msg);
+        msg = PNULL;
+    }
+
     json_item_t *data = createMessageHead(ctx->did, ++ctx->sendsn, ptrue);
 
     json_item_add_subitem(data, J_CREATE_S(MC_VERSION, PLATFORM_PROTOCOL_VERSION));

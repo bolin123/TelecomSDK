@@ -22,6 +22,42 @@ _ptag PMSubDevice_t *PPrivateGetSubDevice(PrivateCtx_t *ctx, const char *subDid)
     return PNULL;
 }
 
+_ptag int PPrivateSubDeviceHeartbeat(PrivateCtx_t *ctx, const char *did)
+{
+    PMSubDevice_t *subDev = PPrivateGetSubDevice(ctx, did);
+    if(subDev)
+    {
+        subDev->hbTime = PUtcTime();
+        return 0;
+    }
+
+    return -1;
+}
+
+_ptag int PPrivateSubDeviceRSSIValue(PrivateCtx_t *ctx, const char *did, int rssi)
+{
+    PMSubDevice_t *subDev = PPrivateGetSubDevice(ctx, did);
+    if(subDev)
+    {
+        subDev->rssi = rssi;
+        return 0;
+    }
+
+    return -1;
+}
+
+_ptag int PPrivateSubDeviceBatteryRemain(PrivateCtx_t *ctx, const char *did, int remain)
+{
+    PMSubDevice_t *subDev = PPrivateGetSubDevice(ctx, did);
+    if(subDev)
+    {
+        subDev->battery = remain;
+        return 0;
+    }
+
+    return -1;
+}
+
 _ptag int PPrivateSubDeviceDel(PrivateCtx_t *ctx, const char *did)
 {
 //    puint16_t i;
@@ -101,7 +137,7 @@ _ptag int PPrivateSubDeviceDel(PrivateCtx_t *ctx, const char *did)
     return -1;
 }
 
-_ptag int PPrivateSubDeviceRegister(PrivateCtx_t *ctx, const char *did, const char *pin, const char *model, const char *version)
+_ptag int PPrivateSubDeviceRegister(PrivateCtx_t *ctx, const char *did, const char *pin, const char *model, const char *version, const char *factoryName)
 {
     PMSubDevice_t *subDev = PNULL;
 
@@ -125,6 +161,10 @@ _ptag int PPrivateSubDeviceRegister(PrivateCtx_t *ctx, const char *did, const ch
         strcpy(subDev->pin, pin);
         strcpy(subDev->model, model);
         strcpy(subDev->version, version);
+        if(factoryName)
+        {
+            strcpy(subDev->factoryName, factoryName);
+        }
 
         PListInit(&subDev->modules);
         PListInit(&subDev->property);

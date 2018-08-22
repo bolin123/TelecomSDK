@@ -15,9 +15,6 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\..\..\src\demo\PlatformUser.c">
-      <Filter>源文件</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\..\..\src\demo\PC\main.c">
       <Filter>源文件</Filter>
     </ClCompile>
@@ -45,9 +42,6 @@
     <ClCompile Include="..\..\..\..\src\sdk\ConnectionManager.c">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\..\src\demo\PC\PSocket.c">
-      <Filter>源文件</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\..\..\src\sdk\PropertyManager.c">
       <Filter>源文件</Filter>
     </ClCompile>
@@ -57,17 +51,23 @@
     <ClCompile Include="..\..\..\..\src\sdk\PlatformOTA.c">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\..\src\demo\PC\PAdapter.c">
+    <ClCompile Include="..\..\..\..\src\sdk\ELink.c">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\..\src\demo\miniGW.c">
+    <ClCompile Include="..\..\..\..\src\demo\PC\Adapter\PAdapter.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\src\demo\PC\Adapter\PSocket.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\src\demo\demo2.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\src\demo\demo1.c">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\..\..\src\demo\PlatformUser.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\..\..\src\sdk\Platform.h">
       <Filter>头文件</Filter>
     </ClInclude>
@@ -125,7 +125,13 @@
     <ClInclude Include="..\..\..\..\src\sdk\PlatformOTA.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\src\demo\miniGW.h">
+    <ClInclude Include="..\..\..\..\src\sdk\ELink.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\src\demo\demo2.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\src\demo\demo1.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>
